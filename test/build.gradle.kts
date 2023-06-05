@@ -1,9 +1,9 @@
 plugins {
     id("java")
     id("org.wisepersist.gwt") version "1.1.19"
-    id("maven-publish")
+    id("war")
+    id("gwt")
 }
-apply(plugin="gwt-base")
 repositories {
     mavenCentral()
     mavenLocal()
@@ -14,6 +14,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
+    implementation(project(":"))
     implementation("org.jboss.elemento:elemento-core:1.0.11")
     implementation("org.gwtproject:gwt-user:2.10.0")
     compileOnly("org.gwtproject:gwt-dev:2.10.0")
@@ -29,22 +30,21 @@ tasks {
         minHeapSize = "1024M"
         maxHeapSize = "2048M"
         sourceLevel = "auto"
+        gwt.modules = listOf("net.sayaya.Test")
     }
+    val lombok: File = project.configurations.annotationProcessor.get().filter { it.name.startsWith("lombok") }.single()
     compileGwt {
-        val lombok: File = project.configurations.annotationProcessor.get().filter { it.name.startsWith("lombok") }.single()
         extraJvmArgs = listOf("-XX:ReservedCodeCacheSize=512M", "-javaagent:${lombok}=ECJ")
     }
-    jar {
-        from(sourceSets.main.get().allSource)
+    gwtDev {
+        minHeapSize = "4096M"
+        maxHeapSize = "4096M"
+        sourceLevel = "auto"
+        extraJvmArgs = listOf("-XX:ReservedCodeCacheSize=512M", "-javaagent:${lombok}=ECJ")
+        port = 8888
+        war = File("src/main/webapp")
     }
-    publishing {
-        publications {
-            register("maven", MavenPublication::class) {
-                groupId = "net.sayaya"
-                artifactId = "rx"
-                version = "1.0"
-                from(project.components["java"])
-            }
-        }
+    withType<War> {
+        duplicatesStrategy = DuplicatesStrategy.WARN
     }
 }

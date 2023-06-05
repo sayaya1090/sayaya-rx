@@ -1,14 +1,16 @@
 package net.sayaya.rx;
 
 import jsinterop.annotations.*;
+import net.sayaya.rx.operator.Operator;
 
 @JsType(isNative = true, namespace="rxjs", name="Observable")
 public class Observable<T> {
     @JsMethod(namespace="rxjs", name="of")
-    static native <T> Observable<T> of(T... values);
-
-    public Observable(){}
-    public Observable(Subscribe<T> subscriber){}
+    public static native <T> Observable<T> of(T... values);
+    @JsMethod(namespace="rxjs", name="from")
+    public static native <T> Observable<T> from(Object any);
+    protected Observable(){}
+    protected Observable(Subscribe<T> subscriber){}
     public native Subscription subscribe(Observer<T> observer);
     @JsOverlay
     public final Subscription subscribe(Observer.ObserverDefault<T> observer) {return subscribe((Observer<T>) observer); }
@@ -21,12 +23,5 @@ public class Observable<T> {
     @JsFunction
     public interface Subscribe<T> {
         void apply(Subscriber<T> subscriber);
-    }
-    @JsFunction
-    public interface Consumer<T> {
-        @JsOverlay
-        default void apply(T data, Object b, Object c) {apply(data);}
-        @JsIgnore
-        void apply(T data);
     }
 }

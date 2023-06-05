@@ -3,6 +3,8 @@ package net.sayaya.rx;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.Scheduler;
 import elemental2.dom.DomGlobal;
+import net.sayaya.rx.subject.BehaviorSubject;
+import net.sayaya.rx.subject.Subject;
 
 public class Test implements EntryPoint {
     @Override
@@ -26,7 +28,7 @@ public class Test implements EntryPoint {
         });
         var k = Observable.of("A", "B", "C");
         k.subscribe(x->DomGlobal.console.log(x));
-        var subject = new Subject<Integer>();
+        var subject = Subject.single(Integer.class);
         subject.subscribe(x->DomGlobal.console.log(x));
         subject.next(1000);
         subject.next(2000);
@@ -38,5 +40,16 @@ public class Test implements EntryPoint {
             return false;
         }, 3000);
         // subscription.unsubscribe();
+
+        var bsubject = BehaviorSubject.single("H");
+        bsubject.subscribe(x->DomGlobal.console.log(x));
+        bsubject.next("E");
+        Scheduler.get().scheduleFixedDelay(()->{
+            bsubject.next("L");
+            //subscriber.error(new RuntimeException("RFFWEF"));
+            DomGlobal.console.log(bsubject.getValue());
+            bsubject.next("O");
+            return false;
+        }, 3000);
     }
 }
