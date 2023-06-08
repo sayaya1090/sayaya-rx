@@ -10,11 +10,7 @@ public interface Observer<T> {
     @JsMethod void complete();
 
     interface ObserverDefault<T> extends Observer<T> {
-        default void error(Throwable error) {
-            DomGlobal.console.log(error);
-        }
-        default void complete() {
-            DomGlobal.console.log("Done");
-        }
+        default void error(Throwable error) {}
+        default void complete() {}
     }
 }
