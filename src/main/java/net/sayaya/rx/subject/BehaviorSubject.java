@@ -5,6 +5,7 @@ import jsinterop.annotations.JsType;
 import net.sayaya.rx.Observable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsType(isNative = true, namespace="rxjs", name="BehaviorSubject")
 public class BehaviorSubject<T> extends Subject<T> {
@@ -14,7 +15,7 @@ public class BehaviorSubject<T> extends Subject<T> {
     }
     @JsOverlay
     public static <T> BehaviorListSubject<T> many(List<T> init) {
-        return new BehaviorListSubject<>(init);
+        return new BehaviorListSubject<>(init.stream().map(BehaviorSubject::single).collect(Collectors.toList()));
     }
     protected BehaviorSubject(T value){}
     @Override

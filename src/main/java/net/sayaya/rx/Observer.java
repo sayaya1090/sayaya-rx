@@ -9,6 +9,7 @@ public interface Observer<T> {
     @JsMethod void error(Throwable error);
     @JsMethod void complete();
 
+    @JsFunction
     interface ObserverDefault<T> extends Observer<T> {
         default void error(Throwable error) {}
         default void complete() {}
