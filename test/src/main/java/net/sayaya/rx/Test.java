@@ -28,7 +28,7 @@ public class Test implements EntryPoint {
         });
         var k = Observable.of("A", "B", "C");
         k.subscribe(x->DomGlobal.console.log(x));
-        var subject = Subject.single(Integer.class);
+        var subject = Subject.subject(Integer.class);
         subject.subscribe(x->DomGlobal.console.log(x));
         subject.next(1000);
         subject.next(2000);
@@ -41,7 +41,7 @@ public class Test implements EntryPoint {
         }, 3000);
         // subscription.unsubscribe();
 
-        var bsubject = BehaviorSubject.single("H");
+        var bsubject = BehaviorSubject.behavior("H");
         bsubject.subscribe(x->DomGlobal.console.log(x));
         bsubject.next("E");
         Scheduler.get().scheduleFixedDelay(()->{
