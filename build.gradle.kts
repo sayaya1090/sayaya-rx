@@ -14,11 +14,11 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:1.0.10")
+    implementation("org.jboss.elemento:elemento-core:1.0.11")
     implementation("org.gwtproject:gwt-user:2.10.0")
     compileOnly("org.gwtproject:gwt-dev:2.10.0")
-    implementation("org.projectlombok:lombok:1.18.24")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
+    implementation("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
 }
 tasks {
     withType<Delete> { doFirst { delete("build/") } }
@@ -33,9 +33,6 @@ tasks {
     compileGwt {
         val lombok: File = project.configurations.annotationProcessor.get().filter { it.name.startsWith("lombok") }.single()
         extraJvmArgs = listOf("-XX:ReservedCodeCacheSize=512M", "-javaagent:${lombok}=ECJ")
-    }
-    jar {
-        from(sourceSets.main.get().allSource)
     }
     jar {
         from(sourceSets.main.get().allSource)
