@@ -1,6 +1,5 @@
 package net.sayaya.rx.subject;
 
-import elemental2.dom.DomGlobal;
 import elemental2.dom.Response;
 import elemental2.promise.Promise;
 import jsinterop.annotations.JsOverlay;

@@ -8,7 +8,7 @@ import net.sayaya.rx.Observer;
 @JsType(isNative = true, namespace="rxjs", name="Subject")
 public class Subject<T> extends Observable<T> implements Observer<T> {
     @JsOverlay
-    public static <T> Subject<T> single(Class<T> clazz) {
+    public static <T> Subject<T> subject(Class<T> clazz) {
         return new Subject<>();
     }
     protected Subject(){}

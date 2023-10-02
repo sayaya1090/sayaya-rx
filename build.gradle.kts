@@ -37,7 +37,20 @@ tasks {
     jar {
         from(sourceSets.main.get().allSource)
     }
+    jar {
+        from(sourceSets.main.get().allSource)
+    }
     publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/sayaya1090/maven")
+                credentials {
+                    username = project.findProperty("github_username") as String
+                    password = project.findProperty("github_password") as String
+                }
+            }
+        }
         publications {
             register("maven", MavenPublication::class) {
                 groupId = "net.sayaya"

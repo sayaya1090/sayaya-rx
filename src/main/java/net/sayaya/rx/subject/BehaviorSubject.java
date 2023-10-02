@@ -9,12 +9,8 @@ import java.util.List;
 @JsType(isNative = true, namespace="rxjs", name="BehaviorSubject")
 public class BehaviorSubject<T> extends Subject<T> {
     @JsOverlay
-    public static <T> BehaviorSubject<T> single(T init) {
+    public static <T> BehaviorSubject<T> behavior(T init) {
         return new BehaviorSubject<>(init);
-    }
-    @JsOverlay
-    public static <T> BehaviorListSubject<T> many(List<T> init) {
-        return new BehaviorListSubject<>(init);
     }
     protected BehaviorSubject(T value){}
     @Override
