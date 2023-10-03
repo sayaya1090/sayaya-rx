@@ -7,7 +7,7 @@ import jsinterop.annotations.JsType;
 import net.sayaya.rx.Observable;
 
 @JsType(isNative = true, namespace="rxjs", name="AsyncSubject")
-public class AsyncSubject<T> extends Subject<T> {
+public class AsyncSubject<T> extends SubjectJs<T> {
     @JsOverlay
     public static <T> Observable<T> await(Promise<T> promise) {
         AsyncSubject<T> subject = new AsyncSubject<>();

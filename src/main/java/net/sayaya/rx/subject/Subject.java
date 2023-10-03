@@ -1,22 +1,17 @@
 package net.sayaya.rx.subject;
 
-import jsinterop.annotations.JsOverlay;
-import jsinterop.annotations.JsType;
-import net.sayaya.rx.Observable;
-import net.sayaya.rx.Observer;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import lombok.experimental.Delegate;
 
-@JsType(isNative = true, namespace="rxjs", name="Subject")
-public class Subject<T> extends Observable<T> implements Observer<T> {
-    @JsOverlay
+public class Subject<T> implements ValueChangeHandler<T> {
     public static <T> Subject<T> subject(Class<T> clazz) {
         return new Subject<>();
     }
-    protected Subject(){}
+    @Delegate private final SubjectJs<T> delegate;
+    public Subject() { delegate = new SubjectJs<>(); }
     @Override
-    public native void next(T value);
-    @Override
-    public native void error(Throwable error);
-    @Override
-    public native void complete();
-    public native Observable<T> asObservable();
+    public void onValueChange(ValueChangeEvent<T> event) {
+        delegate.next(event.getValue());
+    }
 }
