@@ -18,6 +18,11 @@ public final class ListOf<T> implements HasValueChangeHandlers<List<T>>, Iterabl
         data.add(datum);
         fire();
     }
+    public void addFirst(T datum) {
+        listen(datum);
+        data.push(datum);
+        fire();
+    }
     private void listen(T datum) {
         var subject = subject(datum.getClass());
         var subscription = subject.subscribe(evt->fire());
