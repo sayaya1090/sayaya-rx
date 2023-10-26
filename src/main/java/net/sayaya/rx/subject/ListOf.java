@@ -9,8 +9,8 @@ import java.util.*;
 
 import static net.sayaya.rx.subject.Subject.subject;
 
-public final class ListOf<T> implements HasValueChangeHandlers<List<T>> {
-    private final List<T> data = new LinkedList<>();
+public final class ListOf<T> implements HasValueChangeHandlers<List<T>>, Iterable<T> {
+    private final LinkedList<T> data = new LinkedList<>();
     private final Map<T, Subscription> subscriptions = new HashMap<>();
     private final List<ValueChangeEventListener<List<T>>> handlers = new LinkedList<>();
     public void add(T datum) {
@@ -18,17 +18,25 @@ public final class ListOf<T> implements HasValueChangeHandlers<List<T>> {
         data.add(datum);
         fire();
     }
+    public void addFirst(T datum) {
+        listen(datum);
+        data.push(datum);
+        fire();
+    }
     private void listen(T datum) {
         var subject = subject(datum.getClass());
         var subscription = subject.subscribe(evt->fire());
         subscriptions.put(datum, subscription);
     }
-    public void remove(T datum) {
+    private void close(T datum) {
         var subscription = subscriptions.get(datum);
         if(subscription!=null) {
             subscription.unsubscribe();
             subscriptions.remove(datum);
         }
+    }
+    public void remove(T datum) {
+        close(datum);
         data.remove(datum);
         fire();
     }
@@ -43,6 +51,37 @@ public final class ListOf<T> implements HasValueChangeHandlers<List<T>> {
             data.add(datum);
         }
         fire();
+    }
+    public T first() {
+        return data.getFirst();
+    }
+    public T last() {
+        return data.getLast();
+    }
+    public T pollFirst() {
+        var datum = data.pollFirst();
+        close(datum);
+        fire();
+        return datum;
+    }
+    public T pollLast() {
+        var datum = data.pollLast();
+        close(datum);
+        fire();
+        return datum;
+    }
+    public boolean contains(T obj) {
+        return subscriptions.containsKey(obj);
+    }
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+    public T get(int index) {
+        return data.get(index);
+    }
+    @Override
+    public Iterator<T> iterator() {
+        return data.iterator();
     }
     public int size() {
         return data.size();
