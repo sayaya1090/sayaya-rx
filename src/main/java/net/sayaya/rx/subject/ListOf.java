@@ -9,8 +9,8 @@ import java.util.*;
 
 import static net.sayaya.rx.subject.Subject.subject;
 
-public final class ListOf<T> implements HasValueChangeHandlers<List<T>> {
-    private final List<T> data = new LinkedList<>();
+public final class ListOf<T> implements HasValueChangeHandlers<List<T>>, Iterable<T> {
+    private final LinkedList<T> data = new LinkedList<>();
     private final Map<T, Subscription> subscriptions = new HashMap<>();
     private final List<ValueChangeEventListener<List<T>>> handlers = new LinkedList<>();
     public void add(T datum) {
@@ -43,6 +43,31 @@ public final class ListOf<T> implements HasValueChangeHandlers<List<T>> {
             data.add(datum);
         }
         fire();
+    }
+    public T first() {
+        return data.getFirst();
+    }
+    public T last() {
+        return data.getLast();
+    }
+    public T pollFirst() {
+        return data.pollFirst();
+    }
+    public T pollLast() {
+        return data.pollLast();
+    }
+    public boolean contains(T obj) {
+        return subscriptions.containsKey(obj);
+    }
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+    public T get(int index) {
+        return data.get(index);
+    }
+    @Override
+    public Iterator<T> iterator() {
+        return data.iterator();
     }
     public int size() {
         return data.size();
