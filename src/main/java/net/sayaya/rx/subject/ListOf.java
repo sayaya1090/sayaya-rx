@@ -28,12 +28,15 @@ public final class ListOf<T> implements HasValueChangeHandlers<List<T>>, Iterabl
         var subscription = subject.subscribe(evt->fire());
         subscriptions.put(datum, subscription);
     }
-    public void remove(T datum) {
+    private void close(T datum) {
         var subscription = subscriptions.get(datum);
         if(subscription!=null) {
             subscription.unsubscribe();
             subscriptions.remove(datum);
         }
+    }
+    public void remove(T datum) {
+        close(datum);
         data.remove(datum);
         fire();
     }
@@ -56,10 +59,16 @@ public final class ListOf<T> implements HasValueChangeHandlers<List<T>>, Iterabl
         return data.getLast();
     }
     public T pollFirst() {
-        return data.pollFirst();
+        var datum = data.pollFirst();
+        close(datum);
+        fire();
+        return datum;
     }
     public T pollLast() {
-        return data.pollLast();
+        var datum = data.pollLast();
+        close(datum);
+        fire();
+        return datum;
     }
     public boolean contains(T obj) {
         return subscriptions.containsKey(obj);
