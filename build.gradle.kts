@@ -17,8 +17,8 @@ dependencies {
     implementation("org.jboss.elemento:elemento-core:1.0.13")
     implementation("org.gwtproject:gwt-user:2.10.0")
     compileOnly("org.gwtproject:gwt-dev:2.10.0")
-    implementation("org.projectlombok:lombok:1.18.26")
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
+    implementation("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 tasks {
     withType<Delete> { doFirst { delete("build/") } }
@@ -52,7 +52,7 @@ tasks {
             register("maven", MavenPublication::class) {
                 groupId = "net.sayaya"
                 artifactId = "rx"
-                version = "1.5"
+                version = "1.6"
                 from(project.components["java"])
             }
         }
