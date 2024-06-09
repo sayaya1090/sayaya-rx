@@ -2,6 +2,7 @@ package net.sayaya.rx;
 
 import jsinterop.annotations.JsFunction;
 import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsType;
 
 public class Operator {
     @JsMethod(namespace="rxjs", name="map")

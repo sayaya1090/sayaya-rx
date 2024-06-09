@@ -22,8 +22,8 @@ public class Test implements EntryPoint {
         DomGlobal.console.log(observable);
         var subscription = observable.map(i->i/10.2).map(i->"[" + i + "]")
                 .subscribe(x->{
-            DomGlobal.console.log(x);
-        });
+                    DomGlobal.console.log(x);
+                });
         var k = Observable.of("A", "B", "C");
         k.subscribe(x->DomGlobal.console.log(x));
         var subject = new Subject<Integer>();
