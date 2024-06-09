@@ -6,5 +6,5 @@ import jsinterop.annotations.JsType;
 public final class Subscriber<T> {
     public native void next(T value);
     public native void complete();
-    public native void error(Throwable e);
+    public native void error(Object e);
 }

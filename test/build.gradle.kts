@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.wisepersist.gwt") version "1.1.19"
+    id("org.docstr.gwt") version "1.1.30"
     id("war")
     id("gwt")
 }
@@ -9,17 +9,22 @@ repositories {
     mavenLocal()
 }
 group = "net.sayaya"
-version = "1.0"
-java.sourceCompatibility = JavaVersion.VERSION_17
-java.targetCompatibility = JavaVersion.VERSION_17
-
+version = "1.7"
+java.sourceCompatibility = JavaVersion.VERSION_21
+java.targetCompatibility = JavaVersion.VERSION_21
+sourceSets {
+    getByName("main").java.srcDirs(
+        "build/generated/sources/annotationProcessor/java/main"
+    )
+}
 dependencies {
-    implementation(project(":"))
-    implementation("org.jboss.elemento:elemento-core:1.0.11")
-    implementation("org.gwtproject:gwt-user:2.10.0")
-    compileOnly("org.gwtproject:gwt-dev:2.10.0")
-    implementation("org.projectlombok:lombok:1.18.24")
-    annotationProcessor("org.projectlombok:lombok:1.18.24")
+    compileOnly(project(":"))
+    annotationProcessor(project(":"))
+    implementation("org.jboss.elemento:elemento-core:1.6.1")
+    implementation("org.gwtproject:gwt-user:2.11.0")
+    compileOnly("org.gwtproject:gwt-dev:2.11.0")
+    implementation("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
 }
 tasks {
     withType<Delete> { doFirst { delete("build/") } }
