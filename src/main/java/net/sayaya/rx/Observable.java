@@ -13,7 +13,7 @@ public class Observable<T> {
     protected Observable(Subscribe<T> subscriber){}
     public native Subscription subscribe(Observer<T> observer);
     @JsOverlay public final Subscription subscribe(Observer.ObserverDefault<T> observer) {return subscribe((Observer<T>) observer); }
-    private native <V> Observable<V> pipe(Operator operator);
+    private native <V> Observable<V> pipe(Object operator);
     @JsOverlay public final <V> Observable<V> map(Operator.Function<T, V> function) {
         return pipe(Operator.map(function));
     }
