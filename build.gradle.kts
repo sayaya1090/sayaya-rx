@@ -9,7 +9,7 @@ repositories {
     mavenLocal()
 }
 group = "net.sayaya"
-version = "1.7"
+version = "1.8"
 java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
 
@@ -52,7 +52,7 @@ tasks {
             register("maven", MavenPublication::class) {
                 groupId = "net.sayaya"
                 artifactId = "rx"
-                version = "1.7"
+                version = "1.8"
                 from(project.components["java"])
             }
         }
