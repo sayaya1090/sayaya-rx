@@ -4,7 +4,20 @@ on:
     types:
       - opened
       - synchronize
-permissions: write-all
+permissions:
+  actions: write
+  attestations: write
+  checks: write
+  contents: write
+  deployments: write
+  discussions: write
+  issues: write
+  packages: write
+  pages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
 jobs:
   code_review_job:
     runs-on: ubuntu-latest
