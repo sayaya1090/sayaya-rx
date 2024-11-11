@@ -1,13 +1,13 @@
-package net.sayaya.rx.subject;
+package dev.sayaya.rx.subject;
 
 import elemental2.dom.Response;
 import elemental2.promise.Promise;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsType;
-import net.sayaya.rx.Observable;
+import dev.sayaya.rx.Observable;
 
 @JsType(isNative = true, namespace="rxjs", name="AsyncSubject")
-public class AsyncSubject<T> extends SubjectJs<T> {
+public class AsyncSubject<T> extends Subject<T> {
     @JsOverlay
     public static <T> Observable<T> await(Promise<T> promise) {
         AsyncSubject<T> subject = new AsyncSubject<>();

@@ -1,41 +1,27 @@
 plugins {
     id("java")
-    id("org.docstr.gwt") version "1.1.30"
+    id("org.docstr.gwt") version "2.0.12"
     id("maven-publish")
 }
-apply(plugin="gwt-base")
 repositories {
     mavenCentral()
     mavenLocal()
 }
-group = "net.sayaya"
-version = "1.8"
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
+group = "dev.sayaya"
+version = "2.0"
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:1.6.1")
-    implementation("org.gwtproject:gwt-user:2.11.0")
-    compileOnly("org.gwtproject:gwt-dev:2.11.0")
-    implementation("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    implementation("org.jboss.elemento:elemento-core:1.6.10")
+    implementation("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 tasks {
-    withType<Delete> { doFirst { delete("build/") } }
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
     gwt {
-        minHeapSize = "1024M"
-        maxHeapSize = "2048M"
         sourceLevel = "auto"
-    }
-    compileGwt {
-        val lombok: File = project.configurations.annotationProcessor.get().filter { it.name.startsWith("lombok") }.single()
-        extraJvmArgs = listOf("-XX:ReservedCodeCacheSize=512M", "-javaagent:${lombok}=ECJ")
     }
     jar {
         from(sourceSets.main.get().allSource)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     publishing {
         repositories {
@@ -50,9 +36,9 @@ tasks {
         }
         publications {
             register("maven", MavenPublication::class) {
-                groupId = "net.sayaya"
+                groupId = "dev.sayaya"
                 artifactId = "rx"
-                version = "1.8"
+                version = "2.0"
                 from(project.components["java"])
             }
         }
