@@ -13,20 +13,14 @@ version = "2.0"
 
 dependencies {
     implementation(project(":"))
-    annotationProcessor(project(":"))
     implementation("org.jboss.elemento:elemento-core:1.6.10")
     implementation("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
-
 tasks {
-    withType<Delete> { doFirst { delete("build/") } }
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
     gwt {
         gwtVersion = "2.12.0"
-        gwt.modules = listOf("net.sayaya.Test")
+        gwt.modules = listOf("dev.sayaya.Test")
         sourceLevel = "auto"
         devMode {
             port = 8888

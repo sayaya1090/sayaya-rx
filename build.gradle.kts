@@ -7,7 +7,7 @@ repositories {
     mavenCentral()
     mavenLocal()
 }
-group = "net.sayaya"
+group = "dev.sayaya"
 version = "2.0"
 
 dependencies {
@@ -36,7 +36,7 @@ tasks {
         }
         publications {
             register("maven", MavenPublication::class) {
-                groupId = "net.sayaya"
+                groupId = "dev.sayaya"
                 artifactId = "rx"
                 version = "2.0"
                 from(project.components["java"])

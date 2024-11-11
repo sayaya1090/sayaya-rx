@@ -3,6 +3,4 @@
 	<inherits name="com.google.gwt.user.User"/>
 	<inherits name="org.jboss.elemento.Core"/>
 	<source path="rx"/>
-	<collapse-all-properties/>
-	<set-configuration-property name="CssResource.enableGss" value="TRUE" />
 </module>

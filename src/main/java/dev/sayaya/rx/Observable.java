@@ -1,7 +1,6 @@
-package net.sayaya.rx;
+package dev.sayaya.rx;
 
 import jsinterop.annotations.*;
-import net.sayaya.rx.operator.Operator;
 
 @JsType(isNative = true, namespace="rxjs", name="Observable")
 public class Observable<T> {

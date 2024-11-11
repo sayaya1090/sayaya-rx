@@ -1,10 +1,10 @@
-package net.sayaya.rx.subject;
+package dev.sayaya.rx.subject;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsType;
 
 @JsType(isNative = true, namespace="rxjs", name="ReplaySubject")
-public class ReplaySubject<T> extends SubjectJs<T> {
+public class ReplaySubject<T> extends Subject<T> {
     @JsOverlay
     public static <T> ReplaySubject<T> replay(Class<T> clazz, int buffer) {
         return new ReplaySubject<>();
