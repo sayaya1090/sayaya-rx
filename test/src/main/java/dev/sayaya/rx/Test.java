@@ -1,10 +1,10 @@
-package net.sayaya.rx;
+package dev.sayaya.rx;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.Scheduler;
+import dev.sayaya.rx.subject.BehaviorSubject;
+import dev.sayaya.rx.subject.Subject;
 import elemental2.dom.DomGlobal;
-import net.sayaya.rx.subject.BehaviorSubject;
-import net.sayaya.rx.subject.Subject;
 
 public class Test implements EntryPoint {
     @Override

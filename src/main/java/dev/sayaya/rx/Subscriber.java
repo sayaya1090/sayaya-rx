@@ -1,4 +1,4 @@
-package net.sayaya.rx;
+package dev.sayaya.rx;
 
 import jsinterop.annotations.JsType;
 
