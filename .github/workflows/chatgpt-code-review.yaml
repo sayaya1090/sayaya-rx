@@ -1,0 +1,20 @@
+name: ChatGPT Code Review
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  code_review_job:
+    runs-on: ubuntu-latest
+    name: ChatGPT Code Review
+    steps:
+      - name: ChatGPT Code Review
+        uses: dlidstrom/genai-code-review@v3.0.2
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_id: ${{ github.event.number }}
+          openai_model: "gpt-4o"
+          mode: files
+          language: ko-KR
