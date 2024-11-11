@@ -5,7 +5,7 @@ on:
       - opened
       - synchronize
 permissions:
-  pull-requests: read
+  pull-requests: write
 jobs:
   code_review_job:
     runs-on: ubuntu-latest
