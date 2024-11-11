@@ -5,8 +5,6 @@ on:
       - opened
       - synchronize
 permissions:
-  checks: write
-  contents: write
   deployments: write
   discussions: write
   issues: write
