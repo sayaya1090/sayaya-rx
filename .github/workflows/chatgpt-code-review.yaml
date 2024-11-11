@@ -4,8 +4,7 @@ on:
     types:
       - opened
       - synchronize
-permissions:
-  issues: write
+permissions: write-all
 jobs:
   code_review_job:
     runs-on: ubuntu-latest
