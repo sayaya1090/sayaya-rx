@@ -9,7 +9,7 @@ import com.google.gwt.user.client.Command;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-abstract class GwtRxTestCase extends GWTTestCase {
+abstract class GwtJsInteropTestCase extends GWTTestCase {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     protected void waitForScriptToLoad(String script, Command callback) {
@@ -20,12 +20,12 @@ abstract class GwtRxTestCase extends GWTTestCase {
         Callback<Void, Exception> loadedCallback = new Callback<Void, Exception>() {
             @Override
             public void onFailure(Exception reason) {
-                logger.severe("RxJS script injection failed: " + reason.getMessage());
+                logger.severe("JS script injection failed: " + reason.getMessage());
             }
 
             @Override
             public void onSuccess(Void result) {
-                logger.info("RxJS script successfully injected.");
+                logger.info("JS script successfully injected.");
                 loaded.incrementAndGet();
             }
         };
