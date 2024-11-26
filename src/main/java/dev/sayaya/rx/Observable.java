@@ -1,24 +1,22 @@
 package dev.sayaya.rx;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import dev.sayaya.rx.function.Callback;
 import dev.sayaya.rx.function.OperatorFunction;
-import dev.sayaya.rx.function.UnaryFunction;
 import elemental2.core.JsError;
 import elemental2.core.JsNumber;
 import elemental2.dom.*;
 import jsinterop.annotations.*;
 import jsinterop.base.Js;
-import lombok.Builder;
+import jsinterop.base.JsArrayLike;
 import org.jboss.elemento.EventType;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 import static dev.sayaya.rx.Observer.next;
-import static elemental2.core.Global.JSON;
 import static jsinterop.annotations.JsPackage.GLOBAL;
 
 /**
@@ -75,6 +73,11 @@ public class Observable<T> {
     public static native Observable<Integer> interval(Integer period);
     @JsMethod(namespace="rxjs", name="interval")
     public static native Observable<Integer> interval();
+    @JsMethod(namespace="rxjs", name="timer")
+    private static native Observable<JsNumber> timer(JsNumber start, JsNumber delay);
+    @JsOverlay public static Observable<Integer> timer(int start, int delay) {
+        return timer(new JsNumber(start), new JsNumber(delay)).map(i->(int)i.valueOf());
+    }
 
     @JsType(isNative = true, namespace = GLOBAL, name = "Object")
     // @Builder
@@ -102,7 +105,6 @@ public class Observable<T> {
     @JsOverlay public static <T> Observable<AjaxResponse<T>> fromRequest(AjaxRequest request, Class<T> clazz) {
         return fromRequest(request).map(Js::cast);
     }
-
     @JsMethod(namespace="rxjs.ajax.ajax", name="getJSON")
     public static native Observable<JavaScriptObject> fromJson(String url);
     @JsOverlay public static <T> Observable<T> fromJson(String url, Class<T> clazz) {
@@ -112,19 +114,34 @@ public class Observable<T> {
     protected Observable(){}
     public native Subscription subscribe(Observer<T> observer);
     @JsOverlay public final Subscription subscribe(Consumer<T> consumer) {return subscribe(next(consumer)); }
-
     public native <V> Observable<V> pipe(OperatorFunction<T, V> func);
     @JsOverlay public final <V> Observable<V> map(Function<T, V> func) { return pipe(Operator.map(func)); }
+    @JsOverlay public final <V> Observable<V> mergeMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.mergeMap(func)); }
+    @JsOverlay public final <V> Observable<V> mergeMap(Observable<? extends V> target) { return pipe(Operator.mergeMapTo(target)); }
+    @JsOverlay public final <V> Observable<V> concatMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.concatMap(func)); }
+    @JsOverlay public final <V> Observable<V> concatMap(Observable<? extends V> target) { return pipe(Operator.concatMapTo(target)); }
+    @JsOverlay public final <V> Observable<V> switchMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.switchMap(func)); }
+    @JsOverlay public final <V> Observable<V> switchMap(Observable<? extends V> target) { return pipe(Operator.switchMapTo(target)); }
+    @JsOverlay public final Observable<List<T>> zip(Observable<? extends T> observable) {
+        return Operator.zip(this, observable).map(JsArrayLike::asList);
+    }@JsOverlay public final Observable<List<T>> combineLatest(Observable<? extends T> observable) {
+        return Operator.combineLatest(this, observable).map(JsArrayLike::asList);
+    }
     @JsOverlay public final Observable<T> filter(Predicate<T> predicate) { return pipe(Operator.filter(predicate)); }
     @JsOverlay public final Observable<T> take(int count) { return pipe(Operator.take(count)); }
     @JsOverlay public final Observable<T> skip(int count) { return pipe(Operator.skip(count)); }
     @JsOverlay public final Observable<T> retry(int count) { return pipe(Operator.retry(count)); }
     @JsOverlay public final Observable<T> scan(BiFunction<T, T, T> func) { return pipe(Operator.scan(func)); }
+    @JsOverlay public final Observable<T> debounce(Function<T, Observable<?>> durationSelector) { return pipe(Operator.debounce(durationSelector::apply)); }
+    @JsOverlay public final Observable<T> debounceTime(int milliseconds) { return pipe(Operator.debounceTime(new JsNumber(milliseconds))); }
+    @JsOverlay public final Observable<T> distinct() { return pipe(Operator.distinct()); }
+    @JsOverlay public final Observable<T> distinct(Function<T, ?> selector) { return pipe(Operator.distinct(selector::apply)); }
+    @JsOverlay public final Observable<T> distinctUntilChanged() { return pipe(Operator.distinctUntilChanged()); }
+    @JsOverlay public final Observable<T> distinctUntilChanged(BiFunction<T, T, Boolean> comparator) { return pipe(Operator.distinctUntilChanged(comparator::apply)); }
+    @JsOverlay public final Observable<T> distinctUntilChanged(Comparator<T> comparator) { return distinctUntilChanged((BiFunction<T, T, Boolean>) (a, b)->comparator.compare(a, b)==0); }
     @JsOverlay @SafeVarargs public final Observable<T> startWith(T... values) { return pipe(Operator.startWith(values)); }
     @JsOverlay public final <E> Observable<E> catchError(BiFunction<JsError, Observable<? super T>, Observable<? super E>> func) { return pipe(Operator.catchError((e, s) -> func.apply(e, s))); }
     @JsOverlay public final <E> Observable<E> catchError(Function<JsError, Observable<? super E>> func) { return pipe(Operator.catchError((e, s) -> func.apply(e))); }
-
-
     @JsOverlay public final <V, O extends Observable<V>> Observable<V> concatAll(Class<V> clazz) {
         Observable<O> cast = (Observable<O>) this;
         return cast.pipe(Operator.concatAll());
@@ -140,5 +157,8 @@ public class Observable<T> {
     @JsOverlay public final <V, O extends Observable<V>> Observable<V> exhaustAll(Class<V> clazz) {
         Observable<O> cast = (Observable<O>) this;
         return cast.pipe(Operator.exhaustAll());
+    }
+    @JsOverlay public final Observable<T> finalize(Callback callback) {
+        return pipe(Operator.finalize(callback));
     }
 }

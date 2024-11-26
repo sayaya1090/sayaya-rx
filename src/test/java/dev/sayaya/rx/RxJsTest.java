@@ -6,11 +6,10 @@ import dev.sayaya.rx.subject.BehaviorSubject;
 import dev.sayaya.rx.subject.ReplaySubject;
 import dev.sayaya.rx.subject.Subject;
 import elemental2.core.JsError;
-import elemental2.dom.DomGlobal;
 import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
-import jsinterop.base.Js;
 
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static dev.sayaya.rx.Observable.*;
@@ -27,15 +26,16 @@ public class RxJsTest extends GwtJsInteropTestCase {
         return "dev.sayaya.Rx";
     }
     public void test() {
-        delayTestFinish(15000);
+        delayTestFinish(20000);
         waitForScriptToLoad("https://unpkg.com/rxjs/dist/bundles/rxjs.umd.min.js", () -> {
             _testObservableGenerator();
             _testOperator();
             _testSubject();
+
             Scheduler.get().scheduleFixedDelay(()->{
                 finishTest();
                 return false;
-            }, 5000);
+            }, 15000);
         });
     }
     private void _testObservableGenerator() {
@@ -86,6 +86,14 @@ public class RxJsTest extends GwtJsInteropTestCase {
                     return false;
                 }, 2000);
             }
+        } { // timer
+            StringBuilder result = new StringBuilder();
+            timer(0, 100).take(5).subscribe(observer(result));
+            assertEquals("", result.toString());
+            Scheduler.get().scheduleFixedDelay(()->{
+                assertEquals("0,1,2,3,4,|", result.toString());
+                return false;
+            }, 2000);
         }
     }
     private void _testOperator() {
@@ -93,10 +101,132 @@ public class RxJsTest extends GwtJsInteropTestCase {
             StringBuilder result = new StringBuilder();
             of(10, 20, 30).map(x->x*2).subscribe(observer(result));
             assertEquals("20,40,60,|", result.toString());
+        } { // mergeMap
+            {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+                Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
+                obs1.mergeMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("10,10,10,30,30,40,30,40,40,|", result.toString());
+                    return false;
+                }, 2000);
+            } {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+                Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
+                obs1.mergeMap(obs2).subscribe(observer(result));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("10,10,10,10,10,10,10,10,10,|", result.toString());
+                    return false;
+                }, 2000);
+            }
+        } { // concatMap
+            {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+                Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
+                obs1.concatMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("10,10,10,30,30,30,40,40,40,|", result.toString());
+                    return false;
+                }, 2000);
+            } {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+                Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
+                obs1.concatMap(obs2).subscribe(observer(result));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("10,10,10,10,10,10,10,10,10,|", result.toString());
+                    return false;
+                }, 2000);
+            }
+        } { // switchMap
+            {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+                Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
+                obs1.switchMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("10,10,10,30,30,40,40,40,|", result.toString());
+                    return false;
+                }, 2000);
+            } {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+                Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
+                obs1.switchMap(obs2).subscribe(observer(result));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("10,10,10,10,10,10,10,10,|", result.toString());
+                    return false;
+                }, 2000);
+            }
+        } { // zip
+            StringBuilder result = new StringBuilder();
+            Observable<Object> obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(5);
+            Observable<Integer> obs2 = timer(0, 60).take(4);
+            obs1.zip(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
+            Scheduler.get().scheduleFixedDelay(()->{
+                assertEquals("a0,b1,c2,d3,", result.toString());
+                return false;
+            }, 2000);
+        } { // combineLatest
+            StringBuilder result = new StringBuilder();
+            Observable<Object> obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(5);
+            Observable<Integer> obs2 = timer(0, 60).take(4);
+            obs1.combineLatest(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
+            Scheduler.get().scheduleFixedDelay(()->{
+                assertEquals("a0,a1,b1,b2,b3,c3,d3,e3,", result.toString());
+                return false;
+            }, 2000);
         } { // scan
             StringBuilder result = new StringBuilder();
             of(10, 20, 30).scan(Integer::sum).subscribe(observer(result));
             assertEquals("10,30,60,|", result.toString());
+        } { // debounce
+            {
+                StringBuilder result = new StringBuilder();
+                Observable<Object> obs1 = timer(0, 100).filter(i->{
+                    if(i > 0 && i < 3) return false;
+                    else return i < 5 || i >= 8;
+                }).map(i->(Object) String.valueOf((char) ('a' + i))).take(12);
+                obs1.debounce(a->timer(0, 150).skip(1).take(1)).subscribe(s->result.append(s).append(","));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("a,e,q,", result.toString());
+                    return false;
+                }, 2000);
+            } {
+                StringBuilder result = new StringBuilder();
+                Observable<Object> obs = timer(0, 100).filter(i->{
+                    if(i > 0 && i < 3) return false;
+                    else return i < 5 || i >= 8;
+                }).map(i->(Object) String.valueOf((char) ('a' + i))).take(12);
+                obs.debounceTime(150).subscribe(s->result.append(s).append(","));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    assertEquals("a,e,q,", result.toString());
+                    return false;
+                }, 2000);
+            }
+        } { // distinct
+            {
+                StringBuilder result = new StringBuilder();
+                of(1, 1, 2, 2, 2, 1, 2, 3, 4, 3, 2, 1).distinct().subscribe(observer(result));
+                assertEquals("1,2,3,4,|", result.toString());
+            } {
+                StringBuilder result = new StringBuilder();
+                of(1, 1, 2, 2, 2, 1, 2, 3, 4, 3, 2, 1).distinct(a->a%2).subscribe(observer(result));
+                assertEquals("1,2,|", result.toString());
+            }
+        } { // distinctUntilChanged
+            {
+                StringBuilder result = new StringBuilder();
+                of(1, 1, 2, 2, 2, 4, 2, 3, 4, 3, 2, 1).distinctUntilChanged().subscribe(observer(result));
+                assertEquals("1,2,4,2,3,4,3,2,1,|", result.toString());
+            } {
+                StringBuilder result = new StringBuilder();
+                of(1, 1, 2, 2, 2, 4, 2, 3, 4, 3, 2, 1).distinctUntilChanged(Comparator.comparing(a->a%2)).subscribe(observer(result));
+                assertEquals("1,2,3,4,3,2,1,|", result.toString());
+            }
         } { // filter
             StringBuilder result = new StringBuilder();
             of(10, 20, 30).filter(x->x>10).subscribe(observer(result));
@@ -199,6 +329,22 @@ public class RxJsTest extends GwtJsInteropTestCase {
             obs3.next(9);
             obs3.complete();
             assertEquals("1,2,3,7,8,9,", result.toString());
+        } { // finalize
+            {
+                StringBuilder result = new StringBuilder();
+                range(0, 5).finalize(()->result.append(" Sequence Complete")).subscribe(observer(result));
+                assertEquals("0,1,2,3,4,| Sequence Complete", result.toString());
+            } {
+                StringBuilder result = new StringBuilder();
+                Observable<Integer> obs = timer(0, 100).finalize(()->result.append(" Sequence Complete"));
+                Subscription subscription = obs.subscribe(i->result.append(i).append(","));
+                Scheduler.get().scheduleFixedDelay(()->{
+                    subscription.unsubscribe();
+                    assertTrue(result.toString().endsWith("Sequence Complete"));
+                    return false;
+                }, 500);
+            }
+
         }
     }
     private void _testSubject() {
