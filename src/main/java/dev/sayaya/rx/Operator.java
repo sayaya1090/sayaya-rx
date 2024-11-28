@@ -1,6 +1,7 @@
 package dev.sayaya.rx;
 
 import dev.sayaya.rx.function.*;
+import dev.sayaya.rx.scheduler.AsyncScheduler;
 import elemental2.core.JsArray;
 import elemental2.core.JsError;
 import elemental2.core.JsNumber;
@@ -123,6 +124,12 @@ public class Operator {
      */
     @JsMethod(namespace="rxjs", name="debounceTime")
     public static native <V> OperatorFunction<V, V> debounceTime(JsNumber due);
+    /**
+     * 특정 시간 동안 다른 소스에서 알림을 방출하지 않은 후에만 소스 Observable에서 알림을 방출합니다.
+     * @link <a href="https://rxjs.dev/api/index/function/throttleTime">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="throttleTime")
+    public static native <V> OperatorFunction<V, V> throttleTime(JsNumber due, AsyncScheduler<V> scheduler);
     /**
      * 이전 항목과 비교하여 구별되는 소스 Observable이 방출하는 모든 항목을 방출하는 Observable을 반환합니다.
      * @link <a href="https://rxjs.dev/api/index/function/distinct">Guide</a>
