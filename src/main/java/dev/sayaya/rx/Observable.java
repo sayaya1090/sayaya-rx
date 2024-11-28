@@ -107,9 +107,9 @@ public class Observable<T> {
         return fromRequest(request).map(Js::cast);
     }
     @JsMethod(namespace="rxjs.ajax.ajax", name="getJSON")
-    public static native Observable<JavaScriptObject> fromJson(String url);
-    @JsOverlay public static <T> Observable<T> fromJson(String url, Class<T> clazz) {
-        return fromJson(url).map(Js::cast);
+    public static native Observable<JavaScriptObject> fetchJson(String url);
+    @JsOverlay public static <T> Observable<T> fetchJson(String url, Class<T> clazz) {
+        return fetchJson(url).map(Js::cast);
     }
 
     protected Observable(){}

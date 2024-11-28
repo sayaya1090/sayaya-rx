@@ -53,7 +53,7 @@ public class RxJsTest extends GwtJsInteropTestCase {
         } { // ajax
             {
                 StringBuilder result = new StringBuilder();
-                fromJson("https://api.github.com/users?per_page=5", GitHubUser[].class).subscribe(x -> {
+                fetchJson("https://api.github.com/users?per_page=5", GitHubUser[].class).subscribe(x -> {
                     for (GitHubUser u : x) result.append(u.id).append(",");
                 });
                 asyncScheduler().schedule(()->{
