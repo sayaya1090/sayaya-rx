@@ -3,6 +3,7 @@ package dev.sayaya.rx;
 import com.google.gwt.core.client.JavaScriptObject;
 import dev.sayaya.rx.function.Callback;
 import dev.sayaya.rx.function.OperatorFunction;
+import dev.sayaya.rx.scheduler.Scheduler;
 import elemental2.core.JsError;
 import elemental2.core.JsNumber;
 import elemental2.dom.*;
@@ -134,6 +135,7 @@ public class Observable<T> {
     @JsOverlay public final Observable<T> scan(BiFunction<T, T, T> func) { return pipe(Operator.scan(func)); }
     @JsOverlay public final Observable<T> debounce(Function<T, Observable<?>> durationSelector) { return pipe(Operator.debounce(durationSelector::apply)); }
     @JsOverlay public final Observable<T> debounceTime(int milliseconds) { return pipe(Operator.debounceTime(new JsNumber(milliseconds))); }
+    @JsOverlay public final Observable<T> throttleTime(int milliseconds) { return pipe(Operator.throttleTime(new JsNumber(milliseconds), Scheduler.async())); }
     @JsOverlay public final Observable<T> distinct() { return pipe(Operator.distinct()); }
     @JsOverlay public final Observable<T> distinct(Function<T, ?> selector) { return pipe(Operator.distinct(selector::apply)); }
     @JsOverlay public final Observable<T> distinctUntilChanged() { return pipe(Operator.distinctUntilChanged()); }

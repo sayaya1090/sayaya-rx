@@ -1,6 +1,6 @@
 package dev.sayaya.rx;
 
-import com.google.gwt.core.client.Scheduler;
+import dev.sayaya.rx.scheduler.AsyncScheduler;
 import dev.sayaya.rx.subject.AsyncSubject;
 import dev.sayaya.rx.subject.BehaviorSubject;
 import dev.sayaya.rx.subject.ReplaySubject;
@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static dev.sayaya.rx.Observable.*;
+import static dev.sayaya.rx.scheduler.Scheduler.*;
 import static dev.sayaya.rx.subject.AsyncSubject.async;
 import static dev.sayaya.rx.subject.BehaviorSubject.behavior;
 import static dev.sayaya.rx.subject.ReplaySubject.replayWithBuffer;
@@ -26,16 +27,13 @@ public class RxJsTest extends GwtJsInteropTestCase {
         return "dev.sayaya.Rx";
     }
     public void test() {
-        delayTestFinish(20000);
+        delayTestFinish(10000);
         waitForScriptToLoad("https://unpkg.com/rxjs/dist/bundles/rxjs.umd.min.js", () -> {
             _testObservableGenerator();
             _testOperator();
             _testSubject();
-
-            Scheduler.get().scheduleFixedDelay(()->{
-                finishTest();
-                return false;
-            }, 15000);
+            _testScheduler();
+            asyncScheduler().schedule(this::finishTest, 8000);
         });
     }
     private void _testObservableGenerator() {
@@ -58,9 +56,8 @@ public class RxJsTest extends GwtJsInteropTestCase {
                 fromJson("https://api.github.com/users?per_page=5", GitHubUser[].class).subscribe(x -> {
                     for (GitHubUser u : x) result.append(u.id).append(",");
                 });
-                Scheduler.get().scheduleFixedDelay(() -> {
+                asyncScheduler().schedule(()->{
                     assertEquals("1,2,3,4,5,", result.toString());
-                    return false;
                 }, 2000);
             } {
                 StringBuilder result = new StringBuilder();
@@ -72,27 +69,24 @@ public class RxJsTest extends GwtJsInteropTestCase {
                           .append(x.status).append(";");
                     for(GitHubUser u: x.response) result.append(u.id).append(",");
                 });
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("json;200;1,2,3,4,5,", result.toString());
-                    return false;
                 }, 2000);
             } {
                 StringBuilder result = new StringBuilder();
                 AjaxRequest request = new AjaxRequest();
                 request.url = "https://api.github.com/invalid-url";
                 fromRequest(request).catchError(e -> of(e)).subscribe(e->result.append("error:").append(e.message));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("error:ajax error 404", result.toString());
-                    return false;
                 }, 2000);
             }
         } { // timer
             StringBuilder result = new StringBuilder();
             timer(0, 100).take(5).subscribe(observer(result));
             assertEquals("", result.toString());
-            Scheduler.get().scheduleFixedDelay(()->{
+            asyncScheduler().schedule(()->{
                 assertEquals("0,1,2,3,4,|", result.toString());
-                return false;
             }, 2000);
         }
     }
@@ -107,18 +101,16 @@ public class RxJsTest extends GwtJsInteropTestCase {
                 Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
                 Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
                 obs1.mergeMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("10,10,10,30,30,40,30,40,40,|", result.toString());
-                    return false;
                 }, 2000);
             } {
                 StringBuilder result = new StringBuilder();
                 Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
                 Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
                 obs1.mergeMap(obs2).subscribe(observer(result));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("10,10,10,10,10,10,10,10,10,|", result.toString());
-                    return false;
                 }, 2000);
             }
         } { // concatMap
@@ -127,18 +119,16 @@ public class RxJsTest extends GwtJsInteropTestCase {
                 Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
                 Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
                 obs1.concatMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("10,10,10,30,30,30,40,40,40,|", result.toString());
-                    return false;
                 }, 2000);
             } {
                 StringBuilder result = new StringBuilder();
                 Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
                 Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
                 obs1.concatMap(obs2).subscribe(observer(result));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("10,10,10,10,10,10,10,10,10,|", result.toString());
-                    return false;
                 }, 2000);
             }
         } { // switchMap
@@ -147,18 +137,16 @@ public class RxJsTest extends GwtJsInteropTestCase {
                 Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
                 Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
                 obs1.switchMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("10,10,10,30,30,40,40,40,|", result.toString());
-                    return false;
                 }, 2000);
             } {
                 StringBuilder result = new StringBuilder();
                 Observable<Integer> obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
                 Observable<Integer> obs2 = timer(0, 60).map(i->10).take(3);
                 obs1.switchMap(obs2).subscribe(observer(result));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("10,10,10,10,10,10,10,10,|", result.toString());
-                    return false;
                 }, 2000);
             }
         } { // zip
@@ -166,18 +154,16 @@ public class RxJsTest extends GwtJsInteropTestCase {
             Observable<Object> obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(5);
             Observable<Integer> obs2 = timer(0, 60).take(4);
             obs1.zip(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
-            Scheduler.get().scheduleFixedDelay(()->{
+            asyncScheduler().schedule(()->{
                 assertEquals("a0,b1,c2,d3,", result.toString());
-                return false;
             }, 2000);
         } { // combineLatest
             StringBuilder result = new StringBuilder();
             Observable<Object> obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(5);
             Observable<Integer> obs2 = timer(0, 60).take(4);
             obs1.combineLatest(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
-            Scheduler.get().scheduleFixedDelay(()->{
+            asyncScheduler().schedule(()->{
                 assertEquals("a0,a1,b1,b2,b3,c3,d3,e3,", result.toString());
-                return false;
             }, 2000);
         } { // scan
             StringBuilder result = new StringBuilder();
@@ -191,9 +177,8 @@ public class RxJsTest extends GwtJsInteropTestCase {
                     else return i < 5 || i >= 8;
                 }).map(i->(Object) String.valueOf((char) ('a' + i))).take(12);
                 obs1.debounce(a->timer(0, 150).skip(1).take(1)).subscribe(s->result.append(s).append(","));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("a,e,q,", result.toString());
-                    return false;
                 }, 2000);
             } {
                 StringBuilder result = new StringBuilder();
@@ -202,11 +187,20 @@ public class RxJsTest extends GwtJsInteropTestCase {
                     else return i < 5 || i >= 8;
                 }).map(i->(Object) String.valueOf((char) ('a' + i))).take(12);
                 obs.debounceTime(150).subscribe(s->result.append(s).append(","));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     assertEquals("a,e,q,", result.toString());
-                    return false;
                 }, 2000);
             }
+        } { // throttle
+            StringBuilder result = new StringBuilder();
+            Observable<Object> obs = timer(0, 100).filter(i->{
+                if(i > 0 && i < 3) return false;
+                else return i < 5 || i >= 8;
+            }).map(i->(Object) String.valueOf((char) ('a' + i))).take(12);
+            obs.throttleTime(150).subscribe(s->result.append(s).append(","));
+            asyncScheduler().schedule(()->{
+                assertEquals("a,e,q,", result.toString());
+            }, 2000);
         } { // distinct
             {
                 StringBuilder result = new StringBuilder();
@@ -338,10 +332,9 @@ public class RxJsTest extends GwtJsInteropTestCase {
                 StringBuilder result = new StringBuilder();
                 Observable<Integer> obs = timer(0, 100).finalize(()->result.append(" Sequence Complete"));
                 Subscription subscription = obs.subscribe(i->result.append(i).append(","));
-                Scheduler.get().scheduleFixedDelay(()->{
+                asyncScheduler().schedule(()->{
                     subscription.unsubscribe();
                     assertTrue(result.toString().endsWith("Sequence Complete"));
-                    return false;
                 }, 500);
             }
 
@@ -394,6 +387,35 @@ public class RxJsTest extends GwtJsInteropTestCase {
             assertEquals("observer A:5\n", result1.toString());
             assertEquals("observer B:5\n", result2.toString());
         }
+    }
+    private void _testScheduler() {
+        StringBuilder result = new StringBuilder();
+        asyncScheduler().schedule(()->result.append("Async;"), 1000);
+        asapScheduler().schedule(()->{
+            asapScheduler().schedule(()->{
+                result.append("Second asap;");
+            });
+            result.append("First asap;");
+        });
+        queueScheduler().schedule(()->{
+            queueScheduler().schedule(()->{
+                result.append("Second queue;");
+            });
+            result.append("First queue;");
+        });
+        result.append("Scheduler Test:");
+        asyncScheduler().schedule(()->
+            assertEquals("First queue;Second queue;" +
+                    "Scheduler Test:" +
+                    "First asap;Second asap;" +
+                    "Async;", result.toString())
+        , 2000);
+
+        AsyncScheduler<Integer> sc = animationFrameScheduler(Integer.class);
+        sc.schedule(height->{
+            result.append(height).append(";");
+            sc.schedule(height+1);
+        }, 0, 0);
     }
     private static Observer<Integer> observer(StringBuilder result) {
         return new Observer<Integer>() {
