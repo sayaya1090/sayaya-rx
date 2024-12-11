@@ -53,6 +53,13 @@ public class Observable<T> {
      */
     @JsMethod(namespace="rxjs", name="from")
     public static native <T> Observable<T> from(Object... any);
+    /**
+     * 주어진 모든 입력 Observable에서 방출되는 값을 동시에 내보내는 출력 Observable을 생성합니다.
+     * @link <a href="https://rxjs.dev/api/index/function/merge">Guide</a>
+     */
+    @SafeVarargs
+    @JsMethod(namespace="rxjs", name="merge")
+    public static native <T> Observable<T> merge(Observable<T>... observables);
 
     /**
      * 지정된 이벤트 대상에서 발생하는 특정 유형의 이벤트를 방출하는 Observable을 생성합니다.
@@ -123,6 +130,8 @@ public class Observable<T> {
     @JsOverlay public final <V> Observable<V> concatMap(Observable<? extends V> target) { return pipe(Operator.concatMapTo(target)); }
     @JsOverlay public final <V> Observable<V> switchMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.switchMap(func)); }
     @JsOverlay public final <V> Observable<V> switchMap(Observable<? extends V> target) { return pipe(Operator.switchMapTo(target)); }
+    @JsOverlay public final Observable<T> tap(Consumer<T> consumer) { return pipe(Operator.tap(consumer::accept)); }
+    @JsOverlay public final Observable<T> tap(Observer<T> observer) { return pipe(Operator.tap(observer)); }
     @JsOverlay public final Observable<List<T>> zip(Observable<? extends T> observable) {
         return Operator.zip(this, observable).map(JsArrayLike::asList);
     }@JsOverlay public final Observable<List<T>> combineLatest(Observable<? extends T> observable) {

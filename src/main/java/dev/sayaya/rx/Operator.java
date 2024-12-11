@@ -57,6 +57,14 @@ public class Operator {
     @JsMethod(namespace="rxjs", name="switchMapTo")
     public static native <T, R> OperatorFunction<T, R> switchMapTo(Observable<? extends R> target);
     /**
+     * 소스 Observable로부터의 부수작업을 수행하는 데 사용됩니다.
+     * @link <a href="https://rxjs.dev/api/index/function/tap">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="tap")
+    public static native <T> OperatorFunction<T, T> tap(Observer<T> observer);
+    @JsMethod(namespace="rxjs", name="tap")
+    public static native <T> OperatorFunction<T, T> tap(VoidFunction<T> observer);
+    /**
      * 여러 개의 Observable을 결합하여 각 입력 Observable의 값을 순서대로 계산하여 값을 갖는 Observable을 생성합니다.
      * @link <a href="https://rxjs.dev/api/index/function/zip">Guide</a>
      */
