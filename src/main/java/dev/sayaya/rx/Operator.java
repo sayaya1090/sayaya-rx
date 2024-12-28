@@ -78,7 +78,26 @@ public class Operator {
     @SafeVarargs
     @JsMethod(namespace="rxjs", name="combineLatest")
     public static native <T> Observable<JsArray<T>> combineLatest(Observable<? extends T>... observables);
-
+    /**
+     * 특정 기간 동안 소스 Observable 값을 버퍼링합니다.
+     * @link <a href="https://rxjs.dev/api/index/function/bufferTime">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="bufferTime")
+    public static native <T> OperatorFunction<T, T[]> bufferTime(int bufferTimeSpan);
+    @JsMethod(namespace="rxjs", name="bufferTime")
+    public static native <T> OperatorFunction<T, T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval);
+    @JsMethod(namespace="rxjs", name="bufferTime")
+    public static native <T> OperatorFunction<T, T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize);
+    /**
+     * 소스 Observable 값을 시간에 따라 주기적으로 중첩된 Observable로 분기합니다.
+     * @link <a href="https://rxjs.dev/api/index/function/windowTime">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="windowTime")
+    public static native <T> OperatorFunction<T, Observable<T>> windowTime(int bufferTimeSpan);
+    @JsMethod(namespace="rxjs", name="windowTime")
+    public static native <T> OperatorFunction<T, Observable<T>> windowTime(int bufferTimeSpan, int bufferCreationInterval);
+    @JsMethod(namespace="rxjs", name="windowTime")
+    public static native <T> OperatorFunction<T, Observable<T>> windowTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize);
     /**
      * 소스 Observable에서 지정된 조건을 만족하는 항목만 방출하여 항목을 필터링합니다.
      * @link <a href="https://rxjs.dev/api/index/function/filter">Guide</a>

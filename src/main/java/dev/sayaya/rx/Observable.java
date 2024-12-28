@@ -134,8 +134,27 @@ public class Observable<T> {
     @JsOverlay public final Observable<T> tap(Observer<T> observer) { return pipe(Operator.tap(observer)); }
     @JsOverlay public final Observable<List<T>> zip(Observable<? extends T> observable) {
         return Operator.zip(this, observable).map(JsArrayLike::asList);
-    }@JsOverlay public final Observable<List<T>> combineLatest(Observable<? extends T> observable) {
+    }
+    @JsOverlay public final Observable<List<T>> combineLatest(Observable<? extends T> observable) {
         return Operator.combineLatest(this, observable).map(JsArrayLike::asList);
+    }
+    @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan) {
+        return pipe(Operator.bufferTime(bufferTimeSpan));
+    }
+    @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval) {
+        return pipe(Operator.bufferTime(bufferTimeSpan, bufferCreationInterval));
+    }
+    @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize) {
+        return pipe(Operator.bufferTime(bufferTimeSpan, bufferCreationInterval, maxBufferSize));
+    }
+    @JsOverlay public final Observable<Observable<T>> windowTime(int bufferTimeSpan) {
+        return pipe(Operator.windowTime(bufferTimeSpan));
+    }
+    @JsOverlay public final Observable<Observable<T>> windowTime(int bufferTimeSpan, int bufferCreationInterval) {
+        return pipe(Operator.windowTime(bufferTimeSpan, bufferCreationInterval));
+    }
+    @JsOverlay public final Observable<Observable<T>> windowTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize) {
+        return pipe(Operator.windowTime(bufferTimeSpan, bufferCreationInterval, maxBufferSize));
     }
     @JsOverlay public final Observable<T> filter(Predicate<T> predicate) { return pipe(Operator.filter(predicate)); }
     @JsOverlay public final Observable<T> take(int count) { return pipe(Operator.take(count)); }

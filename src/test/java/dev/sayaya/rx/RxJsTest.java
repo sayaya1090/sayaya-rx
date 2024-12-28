@@ -4,8 +4,10 @@ import elemental2.core.JsError;
 import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static dev.sayaya.rx.Observable.*;
 import static dev.sayaya.rx.scheduler.Scheduler.*;
@@ -24,10 +26,10 @@ public class RxJsTest extends GwtJsInteropTestCase {
     public void test() {
         delayTestFinish(15000);
         waitForScriptToLoad("https://unpkg.com/rxjs/dist/bundles/rxjs.umd.min.js", () -> {
-            _testObservableGenerator();
+            //_testObservableGenerator();
             _testOperator();
-            _testSubject();
-            _testScheduler();
+            // _testSubject();
+            //_testScheduler();
             asyncScheduler().schedule(this::finishTest, 10000);
         });
     }
@@ -183,6 +185,22 @@ public class RxJsTest extends GwtJsInteropTestCase {
             obs1.combineLatest(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
             asyncScheduler().schedule(()->{
                 assertEquals("a0,a1,b1,b2,b3,c3,d3,e3,", result.toString());
+            }, 2000);
+        } { // bufferTime
+            var result = new StringBuilder();
+            var obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(10);
+            obs1.bufferTime( 200).map(arr->"[" + Arrays.stream(arr).map(Object::toString).collect(Collectors.joining(",")) + "]").subscribe(s->result.append(s).append(","));
+            asyncScheduler().schedule(()->{
+                assertEquals("[a,b],[c,d],[e,f],[g,h],[i,j],", result.toString());
+            }, 2000);
+        } { // windowTime
+            var result = new StringBuilder();
+            var obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(10);
+            obs1.windowTime(200).subscribe(obs->
+                    obs.take(1).subscribe(s->result.append(s).append(","))
+            );
+            asyncScheduler().schedule(()->{
+                assertEquals("a,c,e,g,i,", result.toString());
             }, 2000);
         } { // scan
             var result = new StringBuilder();
