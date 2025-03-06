@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.docstr.gwt") version "2.1.4"
+    id("org.docstr.gwt") version "2.1.6"
     id("maven-publish")
 }
 repositories {
@@ -8,17 +8,17 @@ repositories {
     mavenLocal()
 }
 group = "dev.sayaya"
-version = "2.0"
+version = "2.1"
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:1.6.10")
-    implementation("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    implementation("org.jboss.elemento:elemento-core:1.7.0")
+    implementation("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
     testImplementation("junit:junit:4.13.2")
 }
 gwt {
     modules = listOf("dev.sayaya.Rx")
-    gwtVersion = "2.12.1"
+    gwtVersion = "2.12.2"
     sourceLevel = "auto"
     compiler.strict = true
     compiler.draftCompile = true
@@ -51,7 +51,7 @@ publishing {
         register("maven", MavenPublication::class) {
             groupId = "dev.sayaya"
             artifactId = "rx"
-            version = "2.0"
+            version = "2.1"
             from(project.components["java"])
         }
     }
