@@ -26,10 +26,10 @@ public class RxJsTest extends GwtJsInteropTestCase {
     public void test() {
         delayTestFinish(15000);
         waitForScriptToLoad("https://unpkg.com/rxjs/dist/bundles/rxjs.umd.min.js", () -> {
-            //_testObservableGenerator();
+            _testObservableGenerator();
             _testOperator();
-            // _testSubject();
-            //_testScheduler();
+            _testSubject();
+            _testScheduler();
             asyncScheduler().schedule(this::finishTest, 10000);
         });
     }
@@ -152,6 +152,14 @@ public class RxJsTest extends GwtJsInteropTestCase {
                     assertEquals("10,10,10,10,10,10,10,10,10,|", result.toString());
                 }, 2000);
             }
+        } { // concatWith
+            var result = new StringBuilder();
+            var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
+            var obs2 = timer(0, 60).map(i->10).take(3);
+            obs1.concatWith(obs2).subscribe(observer(result));
+            asyncScheduler().schedule(()->{
+                assertEquals("1,3,4,10,10,10,|", result.toString());
+            }, 2000);
         } { // switchMap
             {
                 var result = new StringBuilder();
@@ -374,7 +382,6 @@ public class RxJsTest extends GwtJsInteropTestCase {
                     assertTrue(result.toString().endsWith("Sequence Complete"));
                 }, 500);
             }
-
         }
     }
     private void _testSubject() {

@@ -128,6 +128,7 @@ public class Observable<T> {
     @JsOverlay public final <V> Observable<V> mergeMap(Observable<? extends V> target) { return pipe(Operator.mergeMapTo(target)); }
     @JsOverlay public final <V> Observable<V> concatMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.concatMap(func)); }
     @JsOverlay public final <V> Observable<V> concatMap(Observable<? extends V> target) { return pipe(Operator.concatMapTo(target)); }
+    @SafeVarargs @JsOverlay public final Observable<T> concatWith(Observable<T>... observers) { return pipe(Operator.concatWith(observers)); }
     @JsOverlay public final <V> Observable<V> switchMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.switchMap(func)); }
     @JsOverlay public final <V> Observable<V> switchMap(Observable<? extends V> target) { return pipe(Operator.switchMapTo(target)); }
     @JsOverlay public final Observable<T> tap(Consumer<T> consumer) { return pipe(Operator.tap(consumer::accept)); }

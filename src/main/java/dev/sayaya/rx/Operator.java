@@ -45,6 +45,15 @@ public class Operator {
     }
     @JsMethod(namespace="rxjs", name="concatMapTo")
     public static native <T, R> OperatorFunction<T, R> concatMapTo(Observable<? extends R> target);
+
+    /**
+     * 소스 옵저버블의 모든 값을 먼저 방출한 후, 완료되면 제공된 각 옵저버블 소스에 하나씩 순차적으로 구독하여, 각 옵저버블의 값을 모두 방출하고, 이전 옵저버블이 완료되어야 다음 옵저버블을 구독합니다.
+     * @link <a href="https://rxjs.dev/api/index/function/concatWith">Guide</a>
+     */
+    @SafeVarargs
+    @JsMethod(namespace="rxjs", name="concatWith")
+    public static native <T> OperatorFunction<T, T> concatWith(Observable<T>... observers);
+
     /**
      * 각 소스 값을 Observable에 투영하여 출력 Observable에 병합하고, 가장 최근에 투영된 Observable의 값만 내보냅니다.
      * @link <a href="https://rxjs.dev/api/index/function/switchMap">Guide</a>
