@@ -8,7 +8,7 @@ repositories {
     mavenLocal()
 }
 group = "dev.sayaya"
-version = "2.1.1"
+version = "2.1.2"
 
 dependencies {
     implementation("org.jboss.elemento:elemento-core:1.7.0")
@@ -51,7 +51,7 @@ publishing {
         register("maven", MavenPublication::class) {
             groupId = "dev.sayaya"
             artifactId = "rx"
-            version = "2.1.1"
+            version = "2.1.2"
             from(project.components["java"])
         }
     }

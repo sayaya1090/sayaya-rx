@@ -60,6 +60,12 @@ public class Observable<T> {
     @SafeVarargs
     @JsMethod(namespace="rxjs", name="merge")
     public static native <T> Observable<T> merge(Observable<T>... observables);
+    /**
+     * ObservableInput의 배열을 인자로 받아, 동일한 순서로 값을 담은 배열을 발행하는 Observable을 반환합니다.
+     * @link <a href="https://rxjs.dev/api/index/function/forkJoin">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="forkJoin")
+    public static native Observable<Object[]> forkJoin(Observable<?>... observables);
 
     /**
      * 지정된 이벤트 대상에서 발생하는 특정 유형의 이벤트를 방출하는 Observable을 생성합니다.

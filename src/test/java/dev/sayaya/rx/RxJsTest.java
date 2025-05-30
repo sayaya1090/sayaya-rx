@@ -95,6 +95,20 @@ public class RxJsTest extends GwtJsInteropTestCase {
             asyncScheduler().schedule(()->{
                 assertEquals("100,0,1,2,3,101,4,5,6,102,|", result.toString());
             }, 2000);
+        } {
+            // forkJoin
+            var result = new StringBuilder();
+            var obs1 = timer(0, 100).map(i->100+i).take(5); // 100, 101, 102, 103, 104
+            var obs2 = timer(0, 30).take(5); // 0, 1, 2, 3, 4
+            forkJoin(obs1, obs2).map(arr -> {
+                var i1 = Integer.parseInt(arr[0].toString()); // 마지막 값이므로 104
+                var i2 = Integer.parseInt(arr[1].toString()); // 마지막 값이므로 4
+                return i1 + i2;
+            }).subscribe(observer(result));
+            assertEquals("", result.toString());
+            asyncScheduler().schedule(()->{
+                assertEquals("108,|", result.toString());
+            }, 2000);
         }
     }
     private void _testOperator() {
