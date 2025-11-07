@@ -1,0 +1,80 @@
+name: Code Review
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+permissions:
+  pull-requests: write
+jobs:
+  chatgpt-code-review:
+    runs-on: ubuntu-latest
+    name: ChatGPT Code Review
+    steps:
+      - name: ChatGPT Code Review
+        uses: dlidstrom/genai-code-review@v3.0.2
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_id: ${{ github.event.number }}
+          openai_model: "gpt-4o"
+          mode: files
+          language: ko-KR
+  gemini-code-review:
+    runs-on: ubuntu-latest
+    name: Gemini Code Review
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+      - name: Install GoogleGenerativeAI
+        run: |
+          npm install @google/generative-ai
+      - name: Get git diff
+        run: |
+          git fetch origin "${{ github.event.pull_request.base.ref }}" "${{ github.event.pull_request.head.ref }}"
+          git diff --unified=0 "origin/${{ github.event.pull_request.base.ref }}" > "diff.txt"
+      - name: Run Gemini-1.5-pro
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const diff_output = fs.readFileSync("diff.txt","utf8");
+            const { GoogleGenerativeAI } = require("@google/generative-ai");
+            const genAI = new GoogleGenerativeAI("${{ secrets.GEMINI_API_KEY }}");
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro"});
+            const prompt = `당신은 수석 소프트웨어 엔지니어이고 주어진 git diff의 결과를 기반으로 코드 검토를 수행해야 합니다. 
+            변경된 코드를 검토하고 변경해야 할 사항이 있으면 알려주세요. git diff 결과에서 수정해야 할 코드가 보이면 
+            “@@ -0,0 +0,0 @@” 부분을 참고하여 변경이 필요한 라인 번호를 추출해야 합니다.\n
+            리뷰 지침:\n
+            1. 모든 변경사항을 종합적으로 검토하고, 가장 중요한 문제점이나 개선사항에만 집중하세요.\n
+            2. 각 주요 이슈에 대해 간단한 설명과 구체적인 개선 제안을 제시하세요. \n
+            3. 개선 제안에는 실제 코드 예시를 포함하세요. 단, 코드 예시는 제공한 코드와 연관된 코드여야 합니다. \n
+            4. 사소한 스타일 문제나 개인적 선호도는 무시하세요.\n
+            5. 심각한 버그, 성능 문제, 또는 보안 취약점이 있는 경우에는 반드시 언급하세요.\n
+            6. 전체 리뷰는 간결하게 유지하세요.\n
+            7. 변경된 부분만 집중하여 리뷰하고, 이미 개선된 코드를 다시 지적하지 마세요.\n
+            8. 기존에 이미 개선된 사항(예: 중복 코드 제거를 위한 함수 생성)을 인식하고 이를 긍정적으로 언급하세요.\n
+            9. 변경된 파일과 관련된 다른 파일들에 미칠 수 있는 영향을 분석하세요.
+            10. 중요도가 높은 순서대로 나열하고, 전체 리뷰 갯수는 최대 10개 이하로 작성하세요.\n\n
+            11. 같은 라인에 대한 코멘트는 합쳐서 한꺼번에 설명해 주세요.
+            12. review comments는 Markdown 형식으로 작성해 주세요.
+            출력 형식: \[{“path”:“{ filepath }”, “line”: { line }, “text”: { review comments }, “side”: “RIGHT"}\]
+            <git diff>${diff_output}</git diff>`;
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            console.log(text);
+            fs.writeFileSync('res.txt',text);
+      - name: output
+        id: store
+        run: |
+          COMMENT=$(sed '/^```/d' res.txt | jq -c .)
+          echo "comment=$COMMENT" >> $GITHUB_OUTPUT
+      - name: Add Pull Request Review Comment
+        uses: nbaztec/add-pr-review-comment@v1.0.7
+        with:
+          comments: ${{ steps.store.outputs.comment }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]'
+          allow-repeats: false

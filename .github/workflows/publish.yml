@@ -1,0 +1,111 @@
+name: Publish
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # v1.0.0, v1.2.3 등의 버전 태그에만 트리거
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 2.1.4)'
+        required: true
+        type: string
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      GITHUB_USERNAME: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets._GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+      - name: Update version in build.gradle.kts
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          sed -i "s/version = \".*\"/version = \"$VERSION\"/" build.gradle.kts
+          cat build.gradle.kts | grep "version ="
+      - name: Build artifacts
+        run: gradle build
+      - name: Publish to GitHub Packages
+        run: gradle publish --no-daemon
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/libs/*.jar
+          body: |
+            ## RxJS Wrapper for GWT ${{ steps.version.outputs.VERSION }}
+
+            RxJS를 GWT에서 사용할 수 있도록 JsInterop으로 래핑한 라이브러리입니다.
+
+            ### 주요 기능
+            - ✅ Observable 생성 함수들 (of, range, timer, merge, forkJoin 등)
+            - ✅ 다양한 연산자들 (map, filter, flatMap, debounce 등)
+            - ✅ Subject 타입들 (Subject, BehaviorSubject, ReplaySubject, AsyncSubject)
+            - ✅ Scheduler 지원 (async, asap, queue, animationFrame)
+            - ✅ Ajax 요청 지원
+
+            ### Maven 좌표 (GitHub Packages)
+            ```gradle
+            // settings.gradle.kts
+            dependencyResolutionManagement {
+                repositories {
+                    maven {
+                        url = uri("https://maven.pkg.github.com/sayaya1090/maven")
+                        credentials {
+                            username = project.findProperty("github_username") as String? ?: System.getenv("GITHUB_USERNAME")
+                            password = project.findProperty("github_password") as String? ?: System.getenv("GITHUB_TOKEN")
+                        }
+                    }
+                }
+            }
+
+            // build.gradle.kts
+            dependencies {
+                implementation("dev.sayaya:rx:${{ steps.version.outputs.VERSION }}")
+            }
+            ```
+
+            ### 사용 예제
+            ```java
+            import static dev.sayaya.rx.Observable.*;
+
+            // Observable 생성
+            of(1, 2, 3, 4, 5)
+                .map(x -> x * 2)
+                .filter(x -> x > 5)
+                .subscribe(System.out::println);
+
+            // Timer
+            timer(0, 1000)
+                .take(5)
+                .subscribe(i -> console.log("Tick: " + i));
+
+            // Ajax 요청
+            fetchJson("https://api.example.com/data", MyData.class)
+                .subscribe(data -> console.log(data));
+            ```
+
+            ### 변경사항
+            자세한 변경사항은 커밋 히스토리를 확인해주세요.
+          draft: false
+          prerelease: false

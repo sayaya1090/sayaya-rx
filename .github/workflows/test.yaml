@@ -1,0 +1,24 @@
+name: 테스트
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_USERNAME: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets._GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 24
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Test
+        run: gradle test
