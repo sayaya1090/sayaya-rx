@@ -50,6 +50,9 @@ tasks {
     test {
         useJUnitPlatform()
     }
+    jar {
+        from(sourceSets.main.get().allSource)
+    }
 }
 publishing {
     repositories {
@@ -64,9 +67,9 @@ publishing {
     }
     publications {
         register("maven", MavenPublication::class) {
-            groupId = "dev.sayaya"
+            groupId = project.group.toString()
             artifactId = "rx"
-            version = "2.1.4"
+            version = project.version.toString()
             from(project.components["java"])
         }
     }
