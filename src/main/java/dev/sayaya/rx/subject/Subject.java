@@ -10,7 +10,7 @@ import jsinterop.annotations.JsType;
 /**
  * Subject는 Observable의 특수 유형으로, 값을 여러 Observer에 멀티캐스트할 수 있습니다.
  * Subject는 EventEmitters와 같습니다.
- * @link <a href="https://rxjs.dev/api/index/class/Subject">Guide</a>
+ * @see <a href="https://rxjs.dev/api/index/class/Subject">Guide</a>
  */
 @JsType(isNative = true, namespace="rxjs", name="Subject")
 public class Subject<T> extends Observable<T> implements Observer<T> {

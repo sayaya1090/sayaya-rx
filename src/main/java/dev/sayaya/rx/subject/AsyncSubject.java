@@ -9,7 +9,7 @@ import dev.sayaya.rx.Observable;
 
 /**
  * 완료될 때만 값을 방출하는 Subject의 변형입니다. 완료 시 모든 관찰자에게 최신 값을 방출합니다.
- * @link <a href="https://rxjs.dev/api/index/class/AsyncSubject">Guide</a>
+ * @see <a href="https://rxjs.dev/api/index/class/AsyncSubject">Guide</a>
  */
 @JsType(isNative = true, namespace="rxjs", name="AsyncSubject")
 public class AsyncSubject<T> extends Subject<T> {

@@ -22,13 +22,13 @@ import static jsinterop.annotations.JsPackage.GLOBAL;
 
 /**
  * Observables are lazy Push collections of multiple values
- * @link <a href="https://rxjs.dev/guide/observable">Guide</a>
+ * @see <a href="https://rxjs.dev/guide/observable">Guide</a>
  */
 @JsType(isNative = true, namespace="rxjs", name="Observable")
 public class Observable<T> {
     /**
      * 인수를 관찰 가능한 시퀀스로 변환합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/of">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/of">Guide</a>
      */
     @SafeVarargs
     @JsMethod(namespace="rxjs", name="of")
@@ -36,7 +36,7 @@ public class Observable<T> {
 
     /**
      * 지정된 범위 내에서 숫자 시퀀스를 방출하는 Observable을 생성합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/range">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/range">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="range")
     private static native Observable<JsNumber> range(JsNumber start, JsNumber count);
@@ -49,27 +49,27 @@ public class Observable<T> {
 
     /**
      * 배열, 배열과 유사한 객체, Promise, 반복 가능한 객체 또는 Observable과 유사한 객체에서 Observable을 생성합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/from">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/from">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="from")
     public static native <T> Observable<T> from(Object... any);
     /**
      * 주어진 모든 입력 Observable에서 방출되는 값을 동시에 내보내는 출력 Observable을 생성합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/merge">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/merge">Guide</a>
      */
     @SafeVarargs
     @JsMethod(namespace="rxjs", name="merge")
     public static native <T> Observable<T> merge(Observable<T>... observables);
     /**
      * ObservableInput의 배열을 인자로 받아, 동일한 순서로 값을 담은 배열을 발행하는 Observable을 반환합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/forkJoin">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/forkJoin">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="forkJoin")
     public static native Observable<Object[]> forkJoin(Observable<?>... observables);
 
     /**
      * 지정된 이벤트 대상에서 발생하는 특정 유형의 이벤트를 방출하는 Observable을 생성합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/fromEvent">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/fromEvent">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="fromEvent")
     public static native Observable<Event> fromEvent(Node target, String eventName);
@@ -81,7 +81,7 @@ public class Observable<T> {
     }
     /**
      * 지정된 스케줄러(SchedulerLike)에서 지정된 시간 간격마다 연속적인 숫자를 방출하는 Observable을 생성합니다.
-     * @link <a href="https://rxjs.dev/api/index/function/interval">Guide</a>
+     * @see <a href="https://rxjs.dev/api/index/function/interval">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="interval")
     public static native Observable<Integer> interval(Integer period);
