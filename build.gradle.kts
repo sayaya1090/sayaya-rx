@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.0"
     id("dev.sayaya.gwt") version "2.2.7"
     signing
     id("maven-publish")
@@ -21,10 +21,10 @@ repositories {
     }
 }
 group = "dev.sayaya"
-version = "2.2.0"
+version = "2.2.2"
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:2.3.2")
+    implementation("org.jboss.elemento:elemento-core:2.4.4")
     implementation("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
     testImplementation("dev.sayaya:gwt-test:2.2.7")

@@ -84,9 +84,8 @@ public class Operator {
      * 여러 개의 Observable을 결합하여 각 입력 Observable의 최신 값에서 계산된 값을 갖는 Observable을 생성합니다.
      * @see <a href="https://rxjs.dev/api/index/function/combineLatest">Guide</a>
      */
-    @SafeVarargs
     @JsMethod(namespace="rxjs", name="combineLatest")
-    public static native <T> Observable<JsArray<T>> combineLatest(Observable<? extends T>... observables);
+    public static native Observable<JsArray<?>> combineLatest(Observable<?>... observables);
     /**
      * 특정 기간 동안 소스 Observable 값을 버퍼링합니다.
      * @see <a href="https://rxjs.dev/api/index/function/bufferTime">Guide</a>

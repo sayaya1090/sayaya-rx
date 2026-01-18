@@ -153,7 +153,7 @@ public class OperatorTest implements EntryPoint {
         var result = new StringBuilder();
         var obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(5);
         var obs2 = timer(0, 60).take(4);
-        obs1.combineLatest(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
+        obs1.combineLatest(obs2).map(arr-> arr[0].toString() + arr[1]).subscribe(s->result.append(s).append(","));
         asyncScheduler().schedule(()->{
             assertEquals("combineLatest() should combine latest values from each observable", "a0,a1,b1,b2,b3,c3,d3,e3,", result.toString());
         }, 2000);

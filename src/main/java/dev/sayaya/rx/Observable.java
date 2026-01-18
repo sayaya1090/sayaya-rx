@@ -142,8 +142,8 @@ public class Observable<T> {
     @JsOverlay public final Observable<List<T>> zip(Observable<? extends T> observable) {
         return Operator.zip(this, observable).map(JsArrayLike::asList);
     }
-    @JsOverlay public final Observable<List<T>> combineLatest(Observable<? extends T> observable) {
-        return Operator.combineLatest(this, observable).map(JsArrayLike::asList);
+    @JsOverlay public final Observable<Object[]> combineLatest(Observable<? > observable) {
+        return Operator.combineLatest(this, observable).map(Js::uncheckedCast);
     }
     @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan) {
         return pipe(Operator.bufferTime(bufferTimeSpan));
