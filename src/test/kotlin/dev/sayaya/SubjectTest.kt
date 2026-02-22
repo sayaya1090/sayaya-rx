@@ -9,7 +9,7 @@ import java.lang.Thread.sleep
 internal class SubjectTest: GwtTestSpec({
     Given("Subject 타입") {
         sleep(1000)
-        val logs = document.getConsoleLogs()
+        val logs = page.getConsoleLogs()
         When("Subject를 사용할 때") {
             val log = logs.find { line -> line.toString().startsWith("Subject") } as String
             Then("모든 구독자에게 값을 멀티캐스트해야 한다") {

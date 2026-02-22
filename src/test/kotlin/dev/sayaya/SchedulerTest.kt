@@ -1,5 +1,6 @@
 package dev.sayaya
 
+import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
 import io.kotest.matchers.string.shouldNotContain
@@ -8,8 +9,13 @@ import java.lang.Thread.sleep
 @GwtHtml("src/test/webapp/scheduler.html")
 internal class SchedulerTest: GwtTestSpec({
     Given("Scheduler 타입") {
-        sleep(3000) // Scheduler 테스트는 타이밍이 중요하므로 충분히 대기
-        val logs = document.getConsoleLogs()
+        // 비동기 작업 대기
+        page.waitForFunction(
+            "window.__TEST_DONE__ === true",
+            null,
+            Page.WaitForFunctionOptions().setTimeout(30_000.0)
+        )
+        val logs = page.getConsoleLogs()
 
         When("asyncScheduler를 사용할 때") {
             val log = logs.find { line -> line.toString().startsWith("asyncScheduler()") } as String

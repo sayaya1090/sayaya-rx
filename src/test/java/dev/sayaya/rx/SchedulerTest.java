@@ -1,6 +1,8 @@
 package dev.sayaya.rx;
 
 import com.google.gwt.core.client.EntryPoint;
+import elemental2.dom.DomGlobal;
+import jsinterop.base.Js;
 
 import static dev.sayaya.rx.Helper.*;
 import static dev.sayaya.rx.scheduler.Scheduler.*;
@@ -8,10 +10,19 @@ import static dev.sayaya.rx.scheduler.Scheduler.*;
 public class SchedulerTest implements EntryPoint {
     @Override
     public void onModuleLoad() {
+        // Playwright 등 외부 테스트 러너가 "페이지 로직이 끝났는지" 기다릴 수 있도록 플래그 제공
+        Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", false);
+
         testAsyncScheduler();
         testAsapScheduler();
         testQueueScheduler();
         testSchedulerOrder();
+
+        // 가장 늦은 assert가 2000ms에 실행되므로 넉넉히 여유를 둔다.
+        asyncScheduler().schedule(() -> {
+            Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", true);
+            DomGlobal.console.log("__TEST_DONE__=true");
+        }, 3500);
     }
 
     private static void testAsyncScheduler() {

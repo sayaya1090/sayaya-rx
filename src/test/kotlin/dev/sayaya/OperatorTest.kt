@@ -1,15 +1,20 @@
 package dev.sayaya
 
+import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
 import io.kotest.matchers.string.shouldNotContain
-import java.lang.Thread.sleep
 
 @GwtHtml("src/test/webapp/operator.html")
 internal class OperatorTest: GwtTestSpec({
     Given("Operator 연산자") {
-        sleep(5000) // 비동기 작업 대기
-        val logs = document.getConsoleLogs()
+        // 비동기 작업 대기
+        page.waitForFunction(
+            "window.__TEST_DONE__ === true",
+            null,
+            Page.WaitForFunctionOptions().setTimeout(30_000.0)
+        )
+        val logs = page.getConsoleLogs()
 
         When("변환 연산자를 사용할 때") {
             Then("map()은 각 값을 변환해야 한다") {

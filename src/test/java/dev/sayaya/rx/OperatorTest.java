@@ -2,6 +2,8 @@ package dev.sayaya.rx;
 
 import com.google.gwt.core.client.EntryPoint;
 import elemental2.core.JsError;
+import elemental2.dom.DomGlobal;
+import jsinterop.base.Js;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -16,6 +18,8 @@ import static dev.sayaya.rx.subject.ReplaySubject.replayWithBuffer;
 public class OperatorTest implements EntryPoint {
     @Override
     public void onModuleLoad() {
+        // Playwright 등 외부 테스트 러너가 "페이지 로직이 끝났는지" 기다릴 수 있도록 플래그 제공
+        Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", false);
         testMap();
         testTap();
         testMergeMap();
@@ -41,6 +45,13 @@ public class OperatorTest implements EntryPoint {
         testMergeAll();
         testExhaustAll();
         testFinalize();
+
+        // 현재 켜져 있는 테스트들은 4초( debounce/throttle ) 뒤에 assert가 수행됨.
+        // 약간의 여유를 두고 완료 플래그를 올린다.
+        asyncScheduler().schedule(() -> {
+            Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", true);
+            DomGlobal.console.log("__TEST_DONE__=true");
+        }, 7000);
     }
 
     private static void testMap() {

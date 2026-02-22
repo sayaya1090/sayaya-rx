@@ -10,7 +10,7 @@ import kotlin.collections.map
 internal class ObservableGeneratorTest: GwtTestSpec({
     Given("Observable 생성 함수") {
         sleep(5000) // Ajax 포함 지연이 필요한 경우가 있어 대기
-        val logs = document.getConsoleLogs()
+        val logs = page.getConsoleLogs()
         When("of()로 Observable을 생성할 때") {
             val log = logs.find { line -> line.toString().startsWith("of") } as String
             Then("값들이 순서대로 방출되고 완료되어야 한다") {
