@@ -6,7 +6,7 @@ import dev.sayaya.gwt.test.GwtTestSpec
 import io.kotest.matchers.string.shouldNotContain
 import java.lang.Thread.sleep
 
-@GwtHtml("src/test/webapp/scheduler.html")
+@GwtHtml("scheduler.html")
 internal class SchedulerTest: GwtTestSpec({
     Given("Scheduler 타입") {
         // 비동기 작업 대기

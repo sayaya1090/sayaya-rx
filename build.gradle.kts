@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "2.3.10"
-    id("dev.sayaya.gwt") version "2.2.9"
+    kotlin("jvm") version "2.4.21"
+    id("dev.sayaya.gwt") version "2.3.0"
     signing
     id("maven-publish")
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
 }
 kotlin {
     jvmToolchain(21)
@@ -21,17 +21,17 @@ repositories {
     }
 }
 group = "dev.sayaya"
-version = "2.2.3"
+version = "2.3.0"
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:2.4.8")
-    implementation("org.projectlombok:lombok:1.18.42")
-    annotationProcessor("org.projectlombok:lombok:1.18.42")
-    testImplementation("dev.sayaya:gwt-test:2.2.9")
+    implementation("org.jboss.elemento:elemento-core:2.5.9")
+    implementation("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
+    testImplementation("dev.sayaya:gwt-test:2.3.0")
 }
 tasks {
     gwt {
-        gwtVersion = "2.13.0"
+        gwtVersion = "2.13.1"
         sourceLevel = "auto"
         modules = listOf("dev.sayaya.Rx")
         devMode {

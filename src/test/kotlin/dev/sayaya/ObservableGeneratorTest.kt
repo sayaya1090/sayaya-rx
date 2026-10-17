@@ -6,7 +6,7 @@ import io.kotest.matchers.string.shouldNotContain
 import java.lang.Thread.sleep
 import kotlin.collections.map
 
-@GwtHtml("src/test/webapp/observable_generator.html")
+@GwtHtml("observable_generator.html")
 internal class ObservableGeneratorTest: GwtTestSpec({
     Given("Observable 생성 함수") {
         sleep(5000) // Ajax 포함 지연이 필요한 경우가 있어 대기

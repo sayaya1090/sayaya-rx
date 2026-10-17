@@ -5,7 +5,7 @@ import dev.sayaya.gwt.test.GwtTestSpec
 import io.kotest.matchers.string.shouldNotContain
 import java.lang.Thread.sleep
 
-@GwtHtml("src/test/webapp/subject.html")
+@GwtHtml("subject.html")
 internal class SubjectTest: GwtTestSpec({
     Given("Subject 타입") {
         sleep(1000)

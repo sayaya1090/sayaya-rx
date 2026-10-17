@@ -5,7 +5,7 @@ import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
 import io.kotest.matchers.string.shouldNotContain
 
-@GwtHtml("src/test/webapp/operator.html")
+@GwtHtml("operator.html")
 internal class OperatorTest: GwtTestSpec({
     Given("Operator 연산자") {
         // 비동기 작업 대기
