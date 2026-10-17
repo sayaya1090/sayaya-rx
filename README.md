@@ -12,6 +12,20 @@ GWT(Google Web Toolkit)를 위한 RxJS 바인딩 라이브러리입니다. Java/
 
 ## 설치
 
+Maven Central에서 받으려면 (인증 불필요):
+
+```gradle
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("dev.sayaya:rx:2.3.0")
+}
+```
+
+GitHub Packages에서 받으려면 (GitHub 토큰 필요):
+
 ```gradle
 repositories {
     maven {
