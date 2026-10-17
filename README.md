@@ -25,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.sayaya:rx:2.1.4")
+    implementation("dev.sayaya:rx:2.3.0")
 }
 ```
 
@@ -107,20 +107,20 @@ Observable.fetchJson("https://api.example.com/data", MyClass.class)
 
 ### GWT 개발 모드
 ```bash
-./gradlew gwtDev
+./gradlew gwtDevMode
 ```
 
 ## 기술 스택
 
-- GWT 2.12.2
-- Kotlin 2.2.21
+- GWT 2.13.1
+- Kotlin 2.4.21
 - RxJS (JsInterop 바인딩)
-- Elemento 2.3.2
+- Elemento 2.5.9
 
 ## 버전
 
-현재 버전: 2.1.4
+현재 버전: 2.3.0
 
 ## 라이선스
 
-이 프로젝트는 GitHub Packages를 통해 배포됩니다.
+[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
