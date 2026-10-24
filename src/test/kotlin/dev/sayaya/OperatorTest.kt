@@ -3,7 +3,9 @@ package dev.sayaya
 import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
 
 @GwtHtml("operator.html")
@@ -195,6 +197,35 @@ internal class OperatorTest: GwtTestSpec({
                 log.shouldNotBeNull()
                 println(log)
                 log.toString() shouldNotContain "Assertion failed!"
+            }
+        }
+
+        When("from()으로 Observable을 생성할 때") {
+            val logsByFrom = logs.filter { it.toString().startsWith("from()") }.map { it.toString() }
+            Then("배열, List, Promise를 입력으로 받아야 한다") {
+                logsByFrom.size shouldBe 3
+                logsByFrom.forEach { log ->
+                    println(log)
+                    log shouldNotContain "Assertion failed!"
+                }
+            }
+        }
+
+        When("추가된 연산자와 API를 사용할 때") {
+            listOf(
+                "takeUntil()", "first()", "last()", "reduce()", "delay()", "share()", "shareReplay()",
+                "withLatestFrom()", "exhaustMap()", "toArray()", "takeWhile()", "pairwise()",
+                "concat()", "defer()", "empty()", "throwError()", "subscribe(next,error,complete)",
+                "timer(due)", "fromEvent(EventTarget)", "schedule() returns", "catchError()"
+            ).forEach { prefix ->
+                Then("$prefix 검증이 실행되고 통과해야 한다") {
+                    val found = logs.filter { it.toString().startsWith(prefix) }.map { it.toString() }
+                    found.shouldNotBeEmpty()
+                    found.forEach { log ->
+                        println(log)
+                        log shouldNotContain "Assertion failed!"
+                    }
+                }
             }
         }
     }

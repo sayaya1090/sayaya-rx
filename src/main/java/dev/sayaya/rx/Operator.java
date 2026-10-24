@@ -193,7 +193,7 @@ public class Operator {
      * @see <a href="https://rxjs.dev/api/operators/catchError">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="catchError")
-    public static native <T, R> OperatorFunction<T, R> catchError(Reducer<JsError, Observable<? super T>, Observable<? super R>> selector);
+    public static native <T, R> OperatorFunction<T, R> catchError(Reducer<JsError, Observable<T>, Observable<? extends R>> selector);
 
     /**
      * "외부" Observable에서 나오는 각 "내부" Observable을 구독하고, Observable이 완료될 때까지 모든 방출된 값을 복사하고 다음 Observable로 넘어갑니다
@@ -226,4 +226,94 @@ public class Operator {
      */
     @JsMethod(namespace="rxjs", name="finalize")
     public static native <V> OperatorFunction<V, V> finalize(Callback callback);
+    /**
+     * notifier가 값을 방출할 때까지 소스 값을 방출하고, 그 뒤 완료합니다.
+     * @see <a href="https://rxjs.dev/api/operators/takeUntil">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="takeUntil")
+    public static native <T> OperatorFunction<T, T> takeUntil(Observable<?> notifier);
+    /**
+     * 조건을 만족하는 동안만 값을 방출하고, 처음으로 만족하지 않으면 완료합니다.
+     * @see <a href="https://rxjs.dev/api/operators/takeWhile">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="takeWhile")
+    public static native <T> OperatorFunction<T, T> takeWhile(PredicateWithIndex<T> predicate);
+    public static <T> OperatorFunction<T, T> takeWhile(Predicate<T> predicate) {
+        return takeWhile((a, i) -> predicate.test(a));
+    }
+    /**
+     * 첫 번째 값(또는 조건을 만족하는 첫 값)만 방출하고 완료합니다.
+     * @see <a href="https://rxjs.dev/api/operators/first">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="first")
+    public static native <T> OperatorFunction<T, T> first();
+    @JsMethod(namespace="rxjs", name="first")
+    public static native <T> OperatorFunction<T, T> first(PredicateWithIndex<T> predicate);
+    public static <T> OperatorFunction<T, T> first(Predicate<T> predicate) {
+        return first((a, i) -> predicate.test(a));
+    }
+    /**
+     * 소스가 완료될 때 마지막 값(또는 조건을 만족하는 마지막 값)을 방출합니다.
+     * @see <a href="https://rxjs.dev/api/operators/last">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="last")
+    public static native <T> OperatorFunction<T, T> last();
+    @JsMethod(namespace="rxjs", name="last")
+    public static native <T> OperatorFunction<T, T> last(PredicateWithIndex<T> predicate);
+    public static <T> OperatorFunction<T, T> last(Predicate<T> predicate) {
+        return last((a, i) -> predicate.test(a));
+    }
+    /**
+     * 누산기를 적용해, 소스가 완료될 때 누적 결과 하나만 방출합니다.
+     * @see <a href="https://rxjs.dev/api/operators/reduce">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="reduce")
+    public static native <T> OperatorFunction<T, T> reduce(Reducer<T, T, T> accumulator);
+    @JsMethod(namespace="rxjs", name="reduce")
+    public static native <T, A> OperatorFunction<T, A> reduce(Reducer<A, T, A> accumulator, A seed);
+    /**
+     * 각 값을 지정한 시간(ms)만큼 늦춰 방출합니다.
+     * @see <a href="https://rxjs.dev/api/operators/delay">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="delay")
+    public static native <T> OperatorFunction<T, T> delay(int due);
+    /**
+     * 하나의 구독을 여러 구독자가 공유(멀티캐스트)합니다.
+     * @see <a href="https://rxjs.dev/api/operators/share">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="share")
+    public static native <T> OperatorFunction<T, T> share();
+    /**
+     * 구독을 공유하고, 마지막 bufferSize개 값을 늦게 온 구독자에게 재생합니다.
+     * @see <a href="https://rxjs.dev/api/operators/shareReplay">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="shareReplay")
+    public static native <T> OperatorFunction<T, T> shareReplay(int bufferSize);
+    /**
+     * 소스 값이 나올 때마다 other의 최신 값과 묶어 [소스값, other값] 배열로 방출합니다.
+     * @see <a href="https://rxjs.dev/api/operators/withLatestFrom">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="withLatestFrom")
+    public static native <T> OperatorFunction<T, JsArray<Object>> withLatestFrom(Observable<?> other);
+    /**
+     * 각 소스 값을 내부 Observable로 투영하되, 내부 Observable이 진행 중이면 새 소스 값을 무시합니다.
+     * @see <a href="https://rxjs.dev/api/operators/exhaustMap">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="exhaustMap")
+    public static native <T, R> OperatorFunction<T, R> exhaustMap(UnaryFunction<? super T, ? extends Observable<? extends R>> mapper);
+    public static <T, R> OperatorFunction<T, R> exhaustMap(Function<? super T, ? extends Observable<? extends R>> func) {
+        return exhaustMap((UnaryFunction<? super T, ? extends Observable<? extends R>>) func::apply);
+    }
+    /**
+     * 소스가 완료될 때 모든 값을 배열 하나로 모아 방출합니다.
+     * @see <a href="https://rxjs.dev/api/operators/toArray">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="toArray")
+    public static native <T> OperatorFunction<T, JsArray<T>> toArray();
+    /**
+     * 연속된 두 값을 [이전값, 현재값] 배열로 묶어 방출합니다.
+     * @see <a href="https://rxjs.dev/api/operators/pairwise">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="pairwise")
+    public static native <T> OperatorFunction<T, JsArray<T>> pairwise();
 }

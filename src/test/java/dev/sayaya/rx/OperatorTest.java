@@ -46,6 +46,9 @@ public class OperatorTest implements EntryPoint {
         testExhaustAll();
         testFinalize();
         testSubscribeLambdaReportsError();
+        testFromArray();
+        testFromPromise();
+        testAddedApis();
 
         // 현재 켜져 있는 테스트들은 4초( debounce/throttle ) 뒤에 assert가 수행됨.
         // 약간의 여유를 두고 완료 플래그를 올린다.
@@ -420,5 +423,112 @@ public class OperatorTest implements EntryPoint {
             cfg.set("onUnhandledError", prev);
             assertEquals("subscribe(lambda) should report unhandled stream errors instead of swallowing them", "1,reported;", result.toString());
         }, 500);
+    }
+    private static void testFromArray() {
+        var result = new StringBuilder();
+        try {
+            Observable.<Integer>from(new Object[]{1, 2, 3}).subscribe(observer(result));
+        } catch (Throwable e) { result.append("ERR:").append(e); }
+        asyncScheduler().schedule(() -> {
+            assertEquals("from() with array should emit each element", "1,2,3,|", result.toString());
+        }, 0);
+    }
+    private static void testFromPromise() {
+        var result = new StringBuilder();
+        Observable.<Integer>from(elemental2.promise.Promise.resolve(7)).subscribe(observer(result));
+        asyncScheduler().schedule(() -> {
+            assertEquals("from() with promise should emit resolved value", "7,|", result.toString());
+        }, 300);
+    }
+    private static void later(String name, String expected, StringBuilder r, int ms) {
+        asyncScheduler().schedule(() -> assertEquals(name, expected, r.toString()), ms);
+    }
+    private static void testAddedApis() {
+        { var r = new StringBuilder();
+          Observable.<Integer>from(Arrays.asList(4, 5)).subscribe(observer(r));
+          later("from() with list should emit each element", "4,5,|", r, 0); }
+        { var r = new StringBuilder();
+          timer(0, 100).takeUntil(timer(250)).subscribe(observer(r));
+          later("takeUntil() should complete when notifier emits", "0,1,2,|", r, 800); }
+        { var r = new StringBuilder();
+          of(10, 20, 30).first().subscribe(observer(r));
+          of(10, 20, 30).first(x -> x > 15).subscribe(observer(r));
+          later("first() should emit the first (matching) value", "10,|20,|", r, 0); }
+        { var r = new StringBuilder();
+          of(10, 20, 30).last().subscribe(observer(r));
+          of(10, 20, 30).last(x -> x < 25).subscribe(observer(r));
+          later("last() should emit the last (matching) value", "30,|20,|", r, 0); }
+        { var r = new StringBuilder();
+          of(1, 2, 3, 4).reduce((a, v) -> a + v).subscribe(observer(r));
+          of(1, 2, 3).reduce((String a, Integer v) -> a + v, "s").subscribe(v -> r.append(v).append(";"));
+          later("reduce() should accumulate to a single value", "10,|s123;", r, 0); }
+        { var r = new StringBuilder();
+          of(1).delay(200).subscribe(observer(r));
+          asyncScheduler().schedule(() -> r.append("@100;"), 100);
+          later("delay() should postpone emissions", "@100;1,|", r, 500); }
+        { var r = new StringBuilder(); int[] count = {0};
+          var shared = Observable.<Integer>defer(() -> { count[0]++; return timer(0, 50).take(2); }).share();
+          shared.subscribe(v -> r.append("A").append(v).append(","));
+          shared.subscribe(v -> r.append("B").append(v).append(","));
+          asyncScheduler().schedule(() -> r.append("count=").append(count[0]), 400);
+          later("share() should multicast a single source subscription", "A0,B0,A1,B1,count=1", r, 500); }
+        { var r = new StringBuilder(); int[] count = {0};
+          var replayed = Observable.<Integer>defer(() -> { count[0]++; return of(1, 2, 3); }).shareReplay(1);
+          replayed.subscribe(v -> r.append("A").append(v).append(","));
+          replayed.subscribe(v -> r.append("B").append(v).append(","));
+          r.append("count=").append(count[0]);
+          later("shareReplay() should replay the last value without resubscribing", "A1,A2,A3,B3,count=1", r, 0); }
+        { var r = new StringBuilder();
+          var latest = behavior("x");
+          of(1, 2).withLatestFrom(latest).subscribe(arr -> r.append(arr[0]).append(arr[1]).append(","));
+          later("withLatestFrom() should combine with the latest value of other", "1x,2x,", r, 0); }
+        { var r = new StringBuilder();
+          timer(0, 100).take(4).exhaustMap(i -> timer(150).map(x -> i)).subscribe(observer(r));
+          later("exhaustMap() should ignore new values while inner is active", "0,2,|", r, 900); }
+        { var r = new StringBuilder();
+          of(1, 2, 3).toArray().subscribe(list -> { for (var v : list) r.append(v).append(","); r.append(list.size()); });
+          later("toArray() should collect all values into a list", "1,2,3,3", r, 0); }
+        { var r = new StringBuilder();
+          of(1, 2, 3, 1).takeWhile(x -> x < 3).subscribe(observer(r));
+          later("takeWhile() should stop at the first failing value", "1,2,|", r, 0); }
+        { var r = new StringBuilder();
+          of(1, 2, 3).pairwise().subscribe(p -> r.append(p.get(0)).append("-").append(p.get(1)).append(","));
+          later("pairwise() should emit consecutive pairs", "1-2,2-3,", r, 0); }
+        { var r = new StringBuilder();
+          concat(of(1, 2), of(3)).subscribe(observer(r));
+          later("concat() should emit observables in sequence", "1,2,3,|", r, 0); }
+        { var r = new StringBuilder(); int[] c = {0};
+          var d = Observable.<Integer>defer(() -> { c[0]++; return of(1); });
+          r.append(c[0]).append(";");
+          d.subscribe(observer(r));
+          r.append(c[0]);
+          later("defer() should create the observable lazily per subscription", "0;1,|1", r, 0); }
+        { var r = new StringBuilder();
+          Observable.<Integer>empty().subscribe(observer(r));
+          later("empty() should complete immediately without values", "|", r, 0); }
+        { var r = new StringBuilder();
+          Observable.<Integer>throwError(new JsError("bad")).subscribe(v -> r.append(v), e -> r.append("E:").append(e.message));
+          later("throwError() should deliver the error to the error callback", "E:bad", r, 0); }
+        { var r = new StringBuilder();
+          of(1, 2).subscribe(v -> r.append(v).append(","), e -> r.append("E"), () -> r.append("|"));
+          later("subscribe(next,error,complete) should call each callback", "1,2,|", r, 0); }
+        { var r = new StringBuilder();
+          timer(100).subscribe(observer(r));
+          later("timer(due) should emit 0 once after due", "0,|", r, 400); }
+        { var r = new StringBuilder();
+          fromEvent(DomGlobal.window, "resize").subscribe(e -> r.append(e.type));
+          DomGlobal.window.dispatchEvent(new elemental2.dom.Event("resize"));
+          later("fromEvent(EventTarget) should accept window as target", "resize", r, 0); }
+        { var r = new StringBuilder();
+          var s1 = asyncScheduler().schedule(() -> r.append("async;"), 100);
+          var s2 = dev.sayaya.rx.scheduler.Scheduler.asapScheduler().schedule(() -> r.append("asap;"));
+          asyncScheduler().schedule(() -> r.append("kept;"), 100);
+          s1.unsubscribe();
+          s2.unsubscribe();
+          later("schedule() returns Subscription that cancels the task", "kept;", r, 400); }
+        { var r = new StringBuilder();
+          Observable.<Integer>throwError(new JsError("x")).catchError(e -> of("recovered:" + e.message)).subscribe(v -> r.append(v).append(";"));
+          Observable.<Integer>throwError(new JsError("y")).catchError((e, caught) -> of("again")).subscribe(v -> r.append(v).append(";"));
+          later("catchError() should switch to a fallback observable of a new type", "recovered:x;again;", r, 0); }
     }
 }

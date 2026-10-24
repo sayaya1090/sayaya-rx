@@ -2,9 +2,11 @@ package dev.sayaya.rx;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import dev.sayaya.rx.function.Callback;
+import dev.sayaya.rx.function.Factory;
 import dev.sayaya.rx.function.OperatorFunction;
 import dev.sayaya.rx.function.VoidFunction;
 import dev.sayaya.rx.scheduler.Scheduler;
+import elemental2.core.JsArray;
 import elemental2.core.JsError;
 import elemental2.core.JsNumber;
 import elemental2.dom.*;
@@ -52,7 +54,10 @@ public class Observable<T> {
      * @see <a href="https://rxjs.dev/api/index/function/from">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="from")
-    public static native <T> Observable<T> from(Object... any);
+    public static native <T> Observable<T> from(Object input);
+    @JsOverlay public static <T> Observable<T> from(List<T> list) {
+        return from((Object) list.toArray());
+    }
     /**
      * 주어진 모든 입력 Observable에서 방출되는 값을 동시에 내보내는 출력 Observable을 생성합니다.
      * @see <a href="https://rxjs.dev/api/index/function/merge">Guide</a>
@@ -72,11 +77,11 @@ public class Observable<T> {
      * @see <a href="https://rxjs.dev/api/index/function/fromEvent">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="fromEvent")
-    public static native Observable<Event> fromEvent(Node target, String eventName);
-    @JsOverlay public static Observable<MouseEvent> fromMouseEvent(Node target, EventType<MouseEvent, Element> evt) {
+    public static native Observable<Event> fromEvent(EventTarget target, String eventName);
+    @JsOverlay public static Observable<MouseEvent> fromMouseEvent(EventTarget target, EventType<MouseEvent, Element> evt) {
         return fromEvent(target, evt.name).map(e->(MouseEvent)e);
     }
-    @JsOverlay public static Observable<KeyboardEvent> fromKeyboardEvent(Node target, EventType<KeyboardEvent, Element> evt) {
+    @JsOverlay public static Observable<KeyboardEvent> fromKeyboardEvent(EventTarget target, EventType<KeyboardEvent, Element> evt) {
         return fromEvent(target, evt.name).map(e->(KeyboardEvent)e);
     }
     /**
@@ -95,6 +100,43 @@ public class Observable<T> {
     private static native Observable<JsNumber> timer(JsNumber start, JsNumber delay);
     @JsOverlay public static Observable<Integer> timer(int start, int delay) {
         return timer(new JsNumber(start), new JsNumber(delay)).map(i->(int)i.valueOf());
+    }
+    @JsMethod(namespace="rxjs", name="timer")
+    private static native Observable<JsNumber> timer(JsNumber due);
+    /**
+     * due(ms) 후에 0을 한 번 방출하고 완료합니다.
+     * @see <a href="https://rxjs.dev/api/index/function/timer">Guide</a>
+     */
+    @JsOverlay public static Observable<Integer> timer(int due) {
+        return timer(new JsNumber(due)).map(i->(int)i.valueOf());
+    }
+    /**
+     * 입력 Observable들을 순서대로 구독해, 앞의 것이 완료되면 다음 것을 이어 방출합니다.
+     * @see <a href="https://rxjs.dev/api/index/function/concat">Guide</a>
+     */
+    @SafeVarargs
+    @JsMethod(namespace="rxjs", name="concat")
+    public static native <T> Observable<T> concat(Observable<? extends T>... observables);
+    /**
+     * 구독할 때마다 factory를 호출해 새 Observable을 만듭니다.
+     * @see <a href="https://rxjs.dev/api/index/function/defer">Guide</a>
+     */
+    @JsMethod(namespace="rxjs", name="defer")
+    public static native <T> Observable<T> defer(Factory<Observable<T>> factory);
+    /**
+     * 아무 값도 방출하지 않고 즉시 완료하는 Observable(rxjs.EMPTY)입니다.
+     * @see <a href="https://rxjs.dev/api/index/const/EMPTY">Guide</a>
+     */
+    @JsProperty(namespace="rxjs", name="EMPTY")
+    public static native <T> Observable<T> empty();
+    @JsMethod(namespace="rxjs", name="throwError")
+    private static native <T> Observable<T> throwErrorWith(Factory<Object> errorFactory);
+    /**
+     * 구독 즉시 주어진 에러를 방출하는 Observable을 만듭니다.
+     * @see <a href="https://rxjs.dev/api/index/function/throwError">Guide</a>
+     */
+    @JsOverlay public static <T> Observable<T> throwError(JsError error) {
+        return throwErrorWith(() -> error);
     }
 
     @JsType(isNative = true, namespace = GLOBAL, name = "Object")
@@ -138,6 +180,22 @@ public class Observable<T> {
      * 처리되지 않은 에러로 보고됩니다(rxjs config.onUnhandledError 또는 비동기 throw).
      */
     @JsOverlay public final Subscription subscribe(Consumer<T> consumer) { return subscribeNext(consumer::accept); }
+    /**
+     * next와 error 콜백으로 구독합니다.
+     */
+    @JsOverlay public final Subscription subscribe(Consumer<T> onNext, Consumer<JsError> onError) {
+        return subscribe(onNext, onError, () -> {});
+    }
+    /**
+     * next, error, complete 콜백으로 구독합니다.
+     */
+    @JsOverlay public final Subscription subscribe(Consumer<T> onNext, Consumer<JsError> onError, Callback onComplete) {
+        return subscribe(new Observer<T>() {
+            public void next(T value) { onNext.accept(value); }
+            public void error(JsError error) { onError.accept(error); }
+            public void complete() { onComplete.call(); }
+        });
+    }
     public native <V> Observable<V> pipe(OperatorFunction<T, V> func);
     @JsOverlay public final <V> Observable<V> map(Function<T, V> func) { return pipe(Operator.map(func)); }
     @JsOverlay public final <V> Observable<V> mergeMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.mergeMap(func)); }
@@ -187,8 +245,8 @@ public class Observable<T> {
     @JsOverlay public final Observable<T> distinctUntilChanged(BiFunction<T, T, Boolean> comparator) { return pipe(Operator.distinctUntilChanged(comparator::apply)); }
     @JsOverlay public final Observable<T> distinctUntilChanged(Comparator<T> comparator) { return distinctUntilChanged((BiFunction<T, T, Boolean>) (a, b)->comparator.compare(a, b)==0); }
     @JsOverlay @SafeVarargs public final Observable<T> startWith(T... values) { return pipe(Operator.startWith(values)); }
-    @JsOverlay public final <E> Observable<E> catchError(BiFunction<JsError, Observable<? super T>, Observable<? super E>> func) { return pipe(Operator.catchError((e, s) -> func.apply(e, s))); }
-    @JsOverlay public final <E> Observable<E> catchError(Function<JsError, Observable<? super E>> func) { return pipe(Operator.catchError((e, s) -> func.apply(e))); }
+    @JsOverlay public final <E> Observable<E> catchError(BiFunction<JsError, Observable<T>, Observable<? extends E>> func) { return pipe(Operator.<T, E>catchError((e, s) -> func.apply(e, s))); }
+    @JsOverlay public final <E> Observable<E> catchError(Function<JsError, Observable<? extends E>> func) { return pipe(Operator.<T, E>catchError((e, s) -> func.apply(e))); }
     @JsOverlay public final <V, O extends Observable<V>> Observable<V> concatAll(Class<V> clazz) {
         Observable<O> cast = (Observable<O>) this;
         return cast.pipe(Operator.concatAll());
@@ -204,6 +262,27 @@ public class Observable<T> {
     @JsOverlay public final <V, O extends Observable<V>> Observable<V> exhaustAll(Class<V> clazz) {
         Observable<O> cast = (Observable<O>) this;
         return cast.pipe(Operator.exhaustAll());
+    }
+    @JsOverlay public final Observable<T> takeUntil(Observable<?> notifier) { return pipe(Operator.takeUntil(notifier)); }
+    @JsOverlay public final Observable<T> takeWhile(Predicate<T> predicate) { return pipe(Operator.takeWhile(predicate)); }
+    @JsOverlay public final Observable<T> first() { return pipe(Operator.first()); }
+    @JsOverlay public final Observable<T> first(Predicate<T> predicate) { return pipe(Operator.first(predicate)); }
+    @JsOverlay public final Observable<T> last() { return pipe(Operator.last()); }
+    @JsOverlay public final Observable<T> last(Predicate<T> predicate) { return pipe(Operator.last(predicate)); }
+    @JsOverlay public final Observable<T> reduce(BiFunction<T, T, T> accumulator) { return pipe(Operator.<T>reduce((a, v) -> accumulator.apply(a, v))); }
+    @JsOverlay public final <A> Observable<A> reduce(BiFunction<A, T, A> accumulator, A seed) { return pipe(Operator.<T, A>reduce((a, v) -> accumulator.apply(a, v), seed)); }
+    @JsOverlay public final Observable<T> delay(int milliseconds) { return pipe(Operator.delay(milliseconds)); }
+    @JsOverlay public final Observable<T> share() { return pipe(Operator.share()); }
+    @JsOverlay public final Observable<T> shareReplay(int bufferSize) { return pipe(Operator.shareReplay(bufferSize)); }
+    @JsOverlay public final Observable<Object[]> withLatestFrom(Observable<?> other) {
+        return pipe(Operator.<T>withLatestFrom(other)).map(Js::<Object[]>uncheckedCast);
+    }
+    @JsOverlay public final <V> Observable<V> exhaustMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.exhaustMap(func)); }
+    @JsOverlay public final Observable<List<T>> toArray() {
+        return pipe(Operator.<T>toArray()).map(JsArrayLike::asList);
+    }
+    @JsOverlay public final Observable<List<T>> pairwise() {
+        return pipe(Operator.<T>pairwise()).map(JsArrayLike::asList);
     }
     @JsOverlay public final Observable<T> finalize(Callback callback) {
         return pipe(Operator.finalize(callback));
