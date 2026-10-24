@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.sayaya:rx:2.3.0")
+    implementation("dev.sayaya:rx:2.4.0")
 }
 ```
 
@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.sayaya:rx:2.3.0")
+    implementation("dev.sayaya:rx:2.4.0")
 }
 ```
 
@@ -133,7 +133,7 @@ Observable.fetchJson("https://api.example.com/data", MyClass.class)
 
 ## 버전
 
-현재 버전: 2.3.0
+현재 버전: 2.4.0
 
 ## 라이선스
 
