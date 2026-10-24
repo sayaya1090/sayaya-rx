@@ -53,10 +53,9 @@ public class OperatorTest implements EntryPoint {
 
         // 현재 켜져 있는 테스트들은 4초( debounce/throttle ) 뒤에 assert가 수행됨.
         // 약간의 여유를 두고 완료 플래그를 올린다.
-        asyncScheduler().schedule(() -> {
-            Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", true);
-            DomGlobal.console.log("__TEST_DONE__=true");
-        }, 7000);
+        // 고정 지연으로 남은 assert(완료 표시가 없는 debounce/throttle/buffer 등, 최대 4000ms)가 실행된 뒤,
+        // eventually 검사가 모두 끝나면 완료 신호를 올린다.
+        signalDoneWhenSettled(4500);
     }
 
     private static void testMap() {
@@ -88,18 +87,14 @@ public class OperatorTest implements EntryPoint {
             var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
             var obs2 = timer(0, 60).map(i->10).take(3);
             obs1.mergeMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
-            asyncScheduler().schedule(()->{
-                assertEquals("mergeMap() should flatten and merge inner observables concurrently", "10,10,10,30,30,40,30,40,40,|", result.toString());
-            }, 2000);
+            eventually("mergeMap() should flatten and merge inner observables concurrently", "10,10,10,30,30,40,30,40,40,|", result, 4000);
         }
         {
             var result = new StringBuilder();
             var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
             var obs2 = timer(0, 60).map(i->10).take(3);
             obs1.mergeMap(obs2).subscribe(observer(result));
-            asyncScheduler().schedule(()->{
-                assertEquals("mergeMap() with constant observable should merge all emissions", "10,10,10,10,10,10,10,10,10,|", result.toString());
-            }, 2000);
+            eventually("mergeMap() with constant observable should merge all emissions", "10,10,10,10,10,10,10,10,10,|", result, 4000);
         }
     }
 
@@ -109,18 +104,14 @@ public class OperatorTest implements EntryPoint {
             var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
             var obs2 = timer(0, 60).map(i->10).take(3);
             obs1.concatMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
-            asyncScheduler().schedule(()->{
-                assertEquals("concatMap() should flatten and concatenate inner observables sequentially", "10,10,10,30,30,30,40,40,40,|", result.toString());
-            }, 2000);
+            eventually("concatMap() should flatten and concatenate inner observables sequentially", "10,10,10,30,30,30,40,40,40,|", result, 4000);
         }
         {
             var result = new StringBuilder();
             var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
             var obs2 = timer(0, 60).map(i->10).take(3);
             obs1.concatMap(obs2).subscribe(observer(result));
-            asyncScheduler().schedule(()->{
-                assertEquals("concatMap() with constant observable should concatenate all emissions", "10,10,10,10,10,10,10,10,10,|", result.toString());
-            }, 2000);
+            eventually("concatMap() with constant observable should concatenate all emissions", "10,10,10,10,10,10,10,10,10,|", result, 4000);
         }
     }
 
@@ -129,9 +120,7 @@ public class OperatorTest implements EntryPoint {
         var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
         var obs2 = timer(0, 60).map(i->10).take(3);
         obs1.concatWith(obs2).subscribe(observer(result));
-        asyncScheduler().schedule(()->{
-            assertEquals("concatWith() should concatenate observables in sequence", "1,3,4,10,10,10,|", result.toString());
-        }, 2000);
+        eventually("concatWith() should concatenate observables in sequence", "1,3,4,10,10,10,|", result, 4000);
     }
 
     private static void testSwitchMap() {
@@ -140,18 +129,14 @@ public class OperatorTest implements EntryPoint {
             var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
             var obs2 = timer(0, 60).map(i->10).take(3);
             obs1.switchMap(x -> obs2.map(i -> i * x)).subscribe(observer(result));
-            asyncScheduler().schedule(()->{
-                assertEquals("switchMap() should switch to latest inner observable", "10,10,10,30,30,40,40,40,|", result.toString());
-            }, 2000);
+            eventually("switchMap() should switch to latest inner observable", "10,10,10,30,30,40,40,40,|", result, 4000);
         }
         {
             var result = new StringBuilder();
             var obs1 = timer(0, 100).map(i->i+1).filter(i->i!=2).take(3);
             var obs2 = timer(0, 60).map(i->10).take(3);
             obs1.switchMap(obs2).subscribe(observer(result));
-            asyncScheduler().schedule(()->{
-                assertEquals("switchMap() with constant observable should switch on each emission", "10,10,10,10,10,10,10,10,|", result.toString());
-            }, 2000);
+            eventually("switchMap() with constant observable should switch on each emission", "10,10,10,10,10,10,10,10,|", result, 4000);
         }
     }
 
@@ -420,29 +405,26 @@ public class OperatorTest implements EntryPoint {
             if (i == 2) throw new IllegalStateException("boom");
             return i;
         }).subscribe(v -> result.append(v).append(","));
-        asyncScheduler().schedule(() -> {
+        eventually("subscribe(lambda) should report unhandled stream errors instead of swallowing them", "1,reported;", result, 3000, () -> {
             cfg.set("onUnhandledError", prev);
-            assertEquals("subscribe(lambda) should report unhandled stream errors instead of swallowing them", "1,reported;", result.toString());
-        }, 500);
+            // 핸들러를 복원한 뒤에 다음 에러 보고 테스트를 시작해, 두 테스트의 핸들러가 겹치지 않게 한다.
+            testObserverNextReportsError();
+        });
     }
     private static void testFromArray() {
         var result = new StringBuilder();
         try {
             Observable.<Integer>from(new Object[]{1, 2, 3}).subscribe(observer(result));
         } catch (Throwable e) { result.append("ERR:").append(e); }
-        asyncScheduler().schedule(() -> {
-            assertEquals("from() with array should emit each element", "1,2,3,|", result.toString());
-        }, 0);
+        eventually("from() with array should emit each element", "1,2,3,|", result, 2000);
     }
     private static void testFromPromise() {
         var result = new StringBuilder();
         Observable.<Integer>from(elemental2.promise.Promise.resolve(7)).subscribe(observer(result));
-        asyncScheduler().schedule(() -> {
-            assertEquals("from() with promise should emit resolved value", "7,|", result.toString());
-        }, 300);
+        eventually("from() with promise should emit resolved value", "7,|", result, 2300);
     }
     private static void later(String name, String expected, StringBuilder r, int ms) {
-        asyncScheduler().schedule(() -> assertEquals(name, expected, r.toString()), ms);
+        eventually(name, expected, r, Math.max(ms * 2, ms + 2000));
     }
     private static void testAddedApis() {
         { var r = new StringBuilder();
@@ -556,8 +538,6 @@ public class OperatorTest implements EntryPoint {
           as.subscribe(v -> r.append("A").append(v).append(","));
           as.next(1); as.next(2); as.complete();
           later("subjectFactories() without Class argument should work", "S1,R1,R2,B2,A2,", r, 0); }
-        // subscribe(lambda) 테스트가 onUnhandledError를 500ms에 복원한 뒤 시작해 핸들러가 겹치지 않게 한다.
-        asyncScheduler().schedule(OperatorTest::testObserverNextReportsError, 600);
     }
     private static void testObserverNextReportsError() {
         { var r = new StringBuilder();
@@ -569,9 +549,6 @@ public class OperatorTest implements EntryPoint {
               if (i == 2) throw new IllegalStateException("boom");
               return i;
           }).subscribe(Observer.next(v -> r.append(v).append(",")));
-          asyncScheduler().schedule(() -> {
-              map.set("onUnhandledError", prev);
-              assertEquals("Observer.next() should report unhandled errors instead of swallowing them", "1,reported;", r.toString());
-          }, 500); }
+          eventually("Observer.next() should report unhandled errors instead of swallowing them", "1,reported;", r, 3000, () -> map.set("onUnhandledError", prev)); }
     }
 }

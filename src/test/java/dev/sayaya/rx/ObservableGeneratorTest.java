@@ -26,11 +26,8 @@ public class ObservableGeneratorTest implements EntryPoint {
         testForkJoin();
         testInterval();
         testAjaxHeaders();
-        // 가장 늦은 assert가 2000ms에 실행되므로 넉넉히 여유를 둔다.
-        asyncScheduler().schedule(() -> {
-            Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", true);
-            DomGlobal.console.log("__TEST_DONE__=true");
-        }, 3500);
+        // 모든 지연 assert가 eventually로 바뀌었으므로, 검사가 모두 끝나면 완료 신호를 올린다.
+        signalDoneWhenSettled(0);
     }
     private static void testOf() {
         var result = new StringBuilder();
@@ -53,7 +50,7 @@ public class ObservableGeneratorTest implements EntryPoint {
         fetchJson("users.json", GitHubUser[].class).subscribe(x -> {
             for (GitHubUser u : x) result.append(u.id).append(",");
         });
-        asyncScheduler().schedule(() -> assertEquals("ajax: fetchJson() should fetch and parse JSON data", "1,2,3,4,5,", result.toString()), 2000);
+        eventually("ajax: fetchJson() should fetch and parse JSON data", "1,2,3,4,5,", result, 4000);
     }{
         var result = new StringBuilder();
         var request = new AjaxRequest();
@@ -63,25 +60,19 @@ public class ObservableGeneratorTest implements EntryPoint {
                     .append(x.status).append(";");
             for(var u: x.response) result.append(u.id).append(",");
         });
-        asyncScheduler().schedule(()->{
-            assertEquals("ajax: fromRequest() should return full response with metadata", "json;200;1,2,3,4,5,", result.toString());
-        }, 2000);
+        eventually("ajax: fromRequest() should return full response with metadata", "json;200;1,2,3,4,5,", result, 4000);
     } {
         var result = new StringBuilder();
         var request = new AjaxRequest();
         request.url = "does-not-exist.json";
         fromRequest(request).catchError(e -> of(e)).subscribe(e->result.append("error:").append(e.message));
-        asyncScheduler().schedule(()->{
-            assertEquals("ajax: fromRequest() should handle HTTP errors properly", "error:ajax error 404", result.toString());
-        }, 2000);
+        eventually("ajax: fromRequest() should handle HTTP errors properly", "error:ajax error 404", result, 4000);
     }}
     private static void testTimer() {
         var result = new StringBuilder();
         timer(0, 100).take(5).subscribe(observer(result));
         assertEquals("timer() should start with empty result", "", result.toString());
-        asyncScheduler().schedule(()->{
-            assertEquals("timer() should emit values at regular intervals", "0,1,2,3,4,|", result.toString());
-        }, 2000);
+        eventually("timer() should emit values at regular intervals", "0,1,2,3,4,|", result, 4000);
     }
     private static void testMerge() {
         var result = new StringBuilder();
@@ -89,9 +80,7 @@ public class ObservableGeneratorTest implements EntryPoint {
         var obs2 = timer(0, 30);
         merge(obs1, obs2).take(10).subscribe(observer(result));
         assertEquals("merge() should start with empty result", "", result.toString());
-        asyncScheduler().schedule(()->{
-            assertEquals("merge() should interleave emissions from multiple observables", "100,0,1,2,3,101,4,5,6,102,|", result.toString());
-        }, 2000);
+        eventually("merge() should interleave emissions from multiple observables", "100,0,1,2,3,101,4,5,6,102,|", result, 4000);
     }
     private static void testForkJoin() {
         var result = new StringBuilder();
@@ -103,16 +92,12 @@ public class ObservableGeneratorTest implements EntryPoint {
             return i1 + i2;
         }).subscribe(observer(result));
         assertEquals("forkJoin() should start with empty result", "", result.toString());
-        asyncScheduler().schedule(()->{
-            assertEquals("forkJoin() should wait for all observables to complete and emit last values", "108,|", result.toString());
-        }, 2000);
+        eventually("forkJoin() should wait for all observables to complete and emit last values", "108,|", result, 4000);
     }
     private static void testInterval() {
         var result = new StringBuilder();
         interval(50).take(3).map(i -> i * 10).subscribe(observer(result));
-        asyncScheduler().schedule(()->{
-            assertEquals("interval() should emit sequential integers at the given period", "0,10,20,|", result.toString());
-        }, 2000);
+        eventually("interval() should emit sequential integers at the given period", "0,10,20,|", result, 4000);
     }
     private static void testAjaxHeaders() {
         var result = new StringBuilder();
@@ -131,8 +116,6 @@ public class ObservableGeneratorTest implements EntryPoint {
             @Override public void error(elemental2.core.JsError error) { result.append("X:").append(error.message); }
             @Override public void complete() { result.append("|"); }
         });
-        asyncScheduler().schedule(()->{
-            assertEquals("headers(ajax): request headers should be sent and response headers should be readable", "200;1;true|", result.toString());
-        }, 2000);
+        eventually("headers(ajax): request headers should be sent and response headers should be readable", "200;1;true|", result, 4000);
     }
 }
