@@ -17,6 +17,7 @@ public class SchedulerTest implements EntryPoint {
         testAsapScheduler();
         testQueueScheduler();
         testSchedulerOrder();
+        testScheduleWithState();
 
         // 가장 늦은 assert가 2000ms에 실행되므로 넉넉히 여유를 둔다.
         asyncScheduler().schedule(() -> {
@@ -95,5 +96,16 @@ public class SchedulerTest implements EntryPoint {
                             "Async;",
                     result.toString());
         }, 2000);
+    }
+    private static void testScheduleWithState() {
+        var result = new StringBuilder();
+        dev.sayaya.rx.scheduler.AsyncScheduler<Integer> sc = asyncScheduler(Integer.class);
+        sc.schedule((Integer n, java.util.function.Consumer<Integer> reschedule) -> {
+            result.append(n).append(";");
+            if (n < 3) reschedule.accept(n + 1);
+        }, 0, 0);
+        asyncScheduler().schedule(() -> {
+            assertEquals("asyncScheduler.schedule(state) should reschedule the task with new state", "0;1;2;3;", result.toString());
+        }, 1500);
     }
 }

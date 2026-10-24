@@ -1,15 +1,21 @@
 package dev.sayaya
 
+import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.string.shouldNotContain
-import java.lang.Thread.sleep
 import kotlin.collections.map
 
 @GwtHtml("observable_generator.html")
 internal class ObservableGeneratorTest: GwtTestSpec({
     Given("Observable 생성 함수") {
-        sleep(5000) // Ajax 포함 지연이 필요한 경우가 있어 대기
+        // 비동기 작업 대기
+        page.waitForFunction(
+            "window.__TEST_DONE__ === true",
+            null,
+            Page.WaitForFunctionOptions().setTimeout(30_000.0)
+        )
         val logs = page.getConsoleLogs()
         When("of()로 Observable을 생성할 때") {
             val log = logs.find { line -> line.toString().startsWith("of") } as String
@@ -63,6 +69,26 @@ internal class ObservableGeneratorTest: GwtTestSpec({
             val logsByForkJoin = logs.filter { line -> line.toString().startsWith("forkJoin") }.map { it.toString() }
             Then("모든 Observable이 완료된 후 마지막 값들을 조합해야 한다") {
                 logsByForkJoin.forEach { log ->
+                    println(log)
+                    log shouldNotContain "Assertion failed!"
+                }
+            }
+        }
+        When("interval()로 Observable을 생성할 때") {
+            val logsByInterval = logs.filter { line -> line.toString().startsWith("interval") }.map { it.toString() }
+            Then("지정한 주기로 정수를 순서대로 방출해야 한다") {
+                logsByInterval.shouldNotBeEmpty()
+                logsByInterval.forEach { log ->
+                    println(log)
+                    log shouldNotContain "Assertion failed!"
+                }
+            }
+        }
+        When("ajax 요청/응답 headers를 다룰 때") {
+            val logsByHeaders = logs.filter { line -> line.toString().startsWith("headers(ajax)") }.map { it.toString() }
+            Then("요청 헤더가 전달되고 응답 헤더를 읽을 수 있어야 한다") {
+                logsByHeaders.shouldNotBeEmpty()
+                logsByHeaders.forEach { log ->
                     println(log)
                     log shouldNotContain "Assertion failed!"
                 }

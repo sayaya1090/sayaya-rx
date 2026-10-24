@@ -3,6 +3,7 @@ package dev.sayaya
 import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.string.shouldNotContain
 import java.lang.Thread.sleep
 
@@ -46,6 +47,15 @@ internal class SchedulerTest: GwtTestSpec({
             Then("각 Scheduler의 특성에 맞게 실행 순서가 결정되어야 한다") {
                 println(log)
                 log shouldNotContain "Assertion failed!"
+            }
+        }
+
+        When("asyncScheduler.schedule(state)로 작업을 다시 예약할 때") {
+            val log = logs.find { line -> line.toString().startsWith("asyncScheduler.schedule(state)") }
+            Then("새 state로 작업이 다시 실행되어야 한다") {
+                log.shouldNotBeNull()
+                println(log)
+                log.toString() shouldNotContain "Assertion failed!"
             }
         }
     }

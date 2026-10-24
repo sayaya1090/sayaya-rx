@@ -1,6 +1,8 @@
 package dev.sayaya.rx;
 
 import com.google.gwt.core.client.EntryPoint;
+import elemental2.dom.DomGlobal;
+import jsinterop.base.Js;
 import dev.sayaya.rx.Helper.GitHubUser;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,6 +15,8 @@ import static dev.sayaya.rx.Observable.*;
 public class ObservableGeneratorTest implements EntryPoint {
     @Override
     public void onModuleLoad() {
+        // Playwright 등 외부 테스트 러너가 "페이지 로직이 끝났는지" 기다릴 수 있도록 플래그 제공
+        Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", false);
         testOf();
         testRange();
         testFromEvent();
@@ -20,6 +24,13 @@ public class ObservableGeneratorTest implements EntryPoint {
         testTimer();
         testMerge();
         testForkJoin();
+        testInterval();
+        testAjaxHeaders();
+        // 가장 늦은 assert가 2000ms에 실행되므로 넉넉히 여유를 둔다.
+        asyncScheduler().schedule(() -> {
+            Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", true);
+            DomGlobal.console.log("__TEST_DONE__=true");
+        }, 3500);
     }
     private static void testOf() {
         var result = new StringBuilder();
@@ -94,6 +105,34 @@ public class ObservableGeneratorTest implements EntryPoint {
         assertEquals("forkJoin() should start with empty result", "", result.toString());
         asyncScheduler().schedule(()->{
             assertEquals("forkJoin() should wait for all observables to complete and emit last values", "108,|", result.toString());
+        }, 2000);
+    }
+    private static void testInterval() {
+        var result = new StringBuilder();
+        interval(50).take(3).map(i -> i * 10).subscribe(observer(result));
+        asyncScheduler().schedule(()->{
+            assertEquals("interval() should emit sequential integers at the given period", "0,10,20,|", result.toString());
+        }, 2000);
+    }
+    private static void testAjaxHeaders() {
+        var result = new StringBuilder();
+        var request = new AjaxRequest();
+        request.url = "rx-test-data.json";
+        request.headers = jsinterop.base.JsPropertyMap.of();
+        request.headers.set("X-Test", "1");
+        fromRequest(request).subscribe(new Observer<AjaxResponse<?>>() {
+            @Override public void next(AjaxResponse<?> x) {
+                try {
+                    result.append(x.status).append(";")
+                          .append(x.request.headers.get("x-test")).append(";")
+                          .append(String.valueOf(x.headers.get("content-type")).contains("json"));
+                } catch (Throwable e) { result.append("ERR:").append(e); }
+            }
+            @Override public void error(elemental2.core.JsError error) { result.append("X:").append(error.message); }
+            @Override public void complete() { result.append("|"); }
+        });
+        asyncScheduler().schedule(()->{
+            assertEquals("headers(ajax): request headers should be sent and response headers should be readable", "200;1;true|", result.toString());
         }, 2000);
     }
 }

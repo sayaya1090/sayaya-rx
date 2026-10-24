@@ -10,11 +10,11 @@ import elemental2.dom.*;
 import jsinterop.annotations.*;
 import jsinterop.base.Js;
 import jsinterop.base.JsArrayLike;
+import jsinterop.base.JsPropertyMap;
 import org.jboss.elemento.EventType;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.*;
 
 import static dev.sayaya.rx.Observer.next;
@@ -84,9 +84,13 @@ public class Observable<T> {
      * @see <a href="https://rxjs.dev/api/index/function/interval">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="interval")
-    public static native Observable<Integer> interval(Integer period);
-    @JsMethod(namespace="rxjs", name="interval")
-    public static native Observable<Integer> interval();
+    private static native Observable<JsNumber> interval(JsNumber period);
+    @JsOverlay public static Observable<Integer> interval(int period) {
+        return interval(new JsNumber(period)).map(i->(int)i.valueOf());
+    }
+    @JsOverlay public static Observable<Integer> interval() {
+        return interval(new JsNumber(0)).map(i->(int)i.valueOf());
+    }
     @JsMethod(namespace="rxjs", name="timer")
     private static native Observable<JsNumber> timer(JsNumber start, JsNumber delay);
     @JsOverlay public static Observable<Integer> timer(int start, int delay) {
@@ -100,7 +104,7 @@ public class Observable<T> {
         public Object body;
         public String method;
         public Boolean async;
-        public Map<String, String> headers;
+        public JsPropertyMap<String> headers;
         public Double timeout;
         public Boolean crossDomain;
     }
@@ -111,7 +115,7 @@ public class Observable<T> {
         public int status;
         public String responseType;
         @JsProperty(name="responseHeaders")
-        public Map<String, String> headers;
+        public JsPropertyMap<String> headers;
         public T response;
     }
     @JsMethod(namespace="rxjs.ajax", name="ajax")
