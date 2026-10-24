@@ -129,7 +129,7 @@ Observable.fetchJson("https://api.example.com/data", MyClass.class)
 - GWT 2.13.1
 - Kotlin 2.4.21
 - RxJS (JsInterop 바인딩)
-- Elemento 2.5.9
+- Elemento 2.5.10
 
 ## 버전
 

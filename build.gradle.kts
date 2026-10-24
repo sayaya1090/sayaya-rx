@@ -24,7 +24,7 @@ group = "dev.sayaya"
 version = "2.3.0"
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:2.5.9")
+    implementation("org.jboss.elemento:elemento-core:2.5.10")
     implementation("org.projectlombok:lombok:1.18.48")
     annotationProcessor("org.projectlombok:lombok:1.18.48")
     testImplementation("dev.sayaya:gwt-test:2.3.0")
