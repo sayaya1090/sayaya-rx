@@ -49,6 +49,7 @@ public class OperatorTest implements EntryPoint {
         testFromArray();
         testFromPromise();
         testAddedApis();
+        testRemainingApis();
 
         // 현재 켜져 있는 테스트들은 4초( debounce/throttle ) 뒤에 assert가 수행됨.
         // 약간의 여유를 두고 완료 플래그를 올린다.
@@ -530,5 +531,47 @@ public class OperatorTest implements EntryPoint {
           Observable.<Integer>throwError(new JsError("x")).catchError(e -> of("recovered:" + e.message)).subscribe(v -> r.append(v).append(";"));
           Observable.<Integer>throwError(new JsError("y")).catchError((e, caught) -> of("again")).subscribe(v -> r.append(v).append(";"));
           later("catchError() should switch to a fallback observable of a new type", "recovered:x;again;", r, 0); }
+    }
+    private static void testRemainingApis() {
+        { var r = new StringBuilder();
+          of(1, 2, 3).scan((String acc, Integer v) -> acc + v, "s").subscribe(v -> r.append(v).append(";"));
+          later("scanWithSeed() should accumulate from the seed", "s1;s12;s123;", r, 0); }
+        { var r = new StringBuilder();
+          of(1, 2, 3).throttleTime(100, asyncScheduler(Integer.class)).subscribe(observer(r));
+          later("throttleTimeScheduler() should accept a scheduler", "1,|", r, 300); }
+        { var r = new StringBuilder();
+          of(1, 2, 3).throttleTime(100, false, true).subscribe(observer(r));
+          later("throttleTimeConfig() should honor leading=false, trailing=true", "3,|", r, 500); }
+        { var r = new StringBuilder();
+          dev.sayaya.rx.subject.Subject<Integer> s = dev.sayaya.rx.subject.Subject.subject();
+          s.subscribe(v -> r.append("S").append(v).append(","));
+          s.next(1);
+          dev.sayaya.rx.subject.ReplaySubject<Integer> rp = dev.sayaya.rx.subject.ReplaySubject.replay();
+          rp.next(1); rp.next(2);
+          rp.subscribe(v -> r.append("R").append(v).append(","));
+          dev.sayaya.rx.subject.ReplaySubject<Integer> rb = dev.sayaya.rx.subject.ReplaySubject.replayWithBuffer(1);
+          rb.next(1); rb.next(2);
+          rb.subscribe(v -> r.append("B").append(v).append(","));
+          dev.sayaya.rx.subject.AsyncSubject<Integer> as = dev.sayaya.rx.subject.AsyncSubject.async();
+          as.subscribe(v -> r.append("A").append(v).append(","));
+          as.next(1); as.next(2); as.complete();
+          later("subjectFactories() without Class argument should work", "S1,R1,R2,B2,A2,", r, 0); }
+        // subscribe(lambda) 테스트가 onUnhandledError를 500ms에 복원한 뒤 시작해 핸들러가 겹치지 않게 한다.
+        asyncScheduler().schedule(OperatorTest::testObserverNextReportsError, 600);
+    }
+    private static void testObserverNextReportsError() {
+        { var r = new StringBuilder();
+          var cfg = Js.asPropertyMap(Js.asPropertyMap(DomGlobal.window).get("rxjs")).get("config");
+          var map = Js.asPropertyMap(cfg);
+          Object prev = map.get("onUnhandledError");
+          map.set("onUnhandledError", (dev.sayaya.rx.function.VoidFunction<Object>) e -> r.append("reported;"));
+          of(1, 2).map(i -> {
+              if (i == 2) throw new IllegalStateException("boom");
+              return i;
+          }).subscribe(Observer.next(v -> r.append(v).append(",")));
+          asyncScheduler().schedule(() -> {
+              map.set("onUnhandledError", prev);
+              assertEquals("Observer.next() should report unhandled errors instead of swallowing them", "1,reported;", r.toString());
+          }, 500); }
     }
 }

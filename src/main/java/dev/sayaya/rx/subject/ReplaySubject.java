@@ -22,6 +22,18 @@ public class ReplaySubject<T> extends Subject<T> {
     public static <T> ReplaySubject<T> replayWithBufferAndWindowTime(Class<T> clazz, int buffer, int windowTime) {
         return new ReplaySubject<>(buffer, windowTime);
     }
+    @JsOverlay
+    public static <T> ReplaySubject<T> replay() {
+        return new ReplaySubject<>();
+    }
+    @JsOverlay
+    public static <T> ReplaySubject<T> replayWithBuffer(int buffer) {
+        return new ReplaySubject<>(buffer);
+    }
+    @JsOverlay
+    public static <T> ReplaySubject<T> replayWithBufferAndWindowTime(int buffer, int windowTime) {
+        return new ReplaySubject<>(buffer, windowTime);
+    }
     @JsConstructor
     protected ReplaySubject(){}
     @JsConstructor

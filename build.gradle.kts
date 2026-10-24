@@ -10,7 +10,6 @@ kotlin {
 }
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/sayaya1090/maven")
@@ -25,8 +24,6 @@ version = "2.4.0"
 
 dependencies {
     implementation("org.jboss.elemento:elemento-core:2.5.10")
-    implementation("org.projectlombok:lombok:1.18.48")
-    annotationProcessor("org.projectlombok:lombok:1.18.48")
     testImplementation("dev.sayaya:gwt-test:2.3.0")
 }
 tasks {

@@ -147,6 +147,8 @@ public class Operator {
     public static <V> OperatorFunction<V, V> scan(BiFunction<V, V, V> func) {
         return scan((a, v, i) -> func.apply(a, v));
     }
+    @JsMethod(namespace="rxjs", name="scan")
+    public static native <T, A> OperatorFunction<T, A> scan(Reducer<A, T, A> accumulator, A seed);
     /**
      * 다른 Observable에 의해 결정된 특정 시간 범위가 다른 소스 방출 없이 지난 후에만 소스 Observable에서 알림을 방출합니다.
      * @see <a href="https://rxjs.dev/api/index/function/debounce">Guide</a>
@@ -165,6 +167,14 @@ public class Operator {
      */
     @JsMethod(namespace="rxjs", name="throttleTime")
     public static native <V> OperatorFunction<V, V> throttleTime(JsNumber due, AsyncScheduler<V> scheduler);
+    @JsMethod(namespace="rxjs", name="throttleTime")
+    public static native <V> OperatorFunction<V, V> throttleTime(JsNumber due, AsyncScheduler<V> scheduler, jsinterop.base.JsPropertyMap<Object> config);
+    /**
+     * throttleTime의 설정 객체({leading, trailing})를 만듭니다.
+     */
+    public static jsinterop.base.JsPropertyMap<Object> throttleConfig(boolean leading, boolean trailing) {
+        return jsinterop.base.JsPropertyMap.of("leading", leading, "trailing", trailing);
+    }
     /**
      * 이전 항목과 비교하여 구별되는 소스 Observable이 방출하는 모든 항목을 방출하는 Observable을 반환합니다.
      * @see <a href="https://rxjs.dev/api/index/function/distinct">Guide</a>

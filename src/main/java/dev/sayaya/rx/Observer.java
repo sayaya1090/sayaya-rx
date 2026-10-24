@@ -1,7 +1,9 @@
 package dev.sayaya.rx;
 
 import elemental2.core.JsError;
+import elemental2.dom.DomGlobal;
 import jsinterop.annotations.*;
+import jsinterop.base.Js;
 
 import java.util.function.Consumer;
 
@@ -20,7 +22,16 @@ public interface Observer<T> {
             public void next(T value) {
                 consumer.accept(value);
             }
-            public void error(JsError error) {}
+            /**
+             * 에러 콜백이 없을 때의 RxJS 기본 동작과 같게, 처리되지 않은 에러로 보고합니다.
+             * rxjs.config.onUnhandledError가 있으면 그쪽으로, 없으면 비동기로 throw합니다.
+             */
+            public void error(JsError error) {
+                Object config = Js.asPropertyMap(Js.global().get("rxjs")).get("config");
+                Object handler = config == null ? null : Js.asPropertyMap(config).get("onUnhandledError");
+                if (handler != null) Js.<dev.sayaya.rx.function.VoidFunction<Object>>uncheckedCast(handler).apply(error);
+                else DomGlobal.setTimeout(ignore -> { throw new com.google.gwt.core.client.JavaScriptException(error); }, 0);
+            }
             public void complete() {}
         };
     }

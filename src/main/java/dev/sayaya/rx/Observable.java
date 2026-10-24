@@ -236,9 +236,23 @@ public class Observable<T> {
     @JsOverlay public final Observable<T> skip(int count) { return pipe(Operator.skip(count)); }
     @JsOverlay public final Observable<T> retry(int count) { return pipe(Operator.retry(count)); }
     @JsOverlay public final Observable<T> scan(BiFunction<T, T, T> func) { return pipe(Operator.scan(func)); }
+    /**
+     * 시드 값(seed)부터 누적합니다. 누적 결과의 타입은 소스 값 타입과 달라도 됩니다.
+     */
+    @JsOverlay public final <A> Observable<A> scan(BiFunction<A, T, A> func, A seed) { return pipe(Operator.<T, A>scan((a, v) -> func.apply(a, v), seed)); }
     @JsOverlay public final Observable<T> debounce(Function<T, Observable<?>> durationSelector) { return pipe(Operator.debounce(durationSelector::apply)); }
     @JsOverlay public final Observable<T> debounceTime(int milliseconds) { return pipe(Operator.debounceTime(new JsNumber(milliseconds))); }
     @JsOverlay public final Observable<T> throttleTime(int milliseconds) { return pipe(Operator.throttleTime(new JsNumber(milliseconds), Scheduler.async())); }
+    /**
+     * 지정한 스케줄러로 throttleTime을 적용합니다.
+     */
+    @JsOverlay public final Observable<T> throttleTime(int milliseconds, dev.sayaya.rx.scheduler.AsyncScheduler<T> scheduler) { return pipe(Operator.throttleTime(new JsNumber(milliseconds), scheduler)); }
+    /**
+     * leading/trailing 설정으로 throttleTime을 적용합니다. (RxJS ThrottleConfig)
+     */
+    @JsOverlay public final Observable<T> throttleTime(int milliseconds, boolean leading, boolean trailing) {
+        return pipe(Operator.throttleTime(new JsNumber(milliseconds), Scheduler.async(), Operator.throttleConfig(leading, trailing)));
+    }
     @JsOverlay public final Observable<T> distinct() { return pipe(Operator.distinct()); }
     @JsOverlay public final Observable<T> distinct(Function<T, ?> selector) { return pipe(Operator.distinct(selector::apply)); }
     @JsOverlay public final Observable<T> distinctUntilChanged() { return pipe(Operator.distinctUntilChanged()); }

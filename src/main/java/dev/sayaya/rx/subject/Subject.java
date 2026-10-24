@@ -25,4 +25,8 @@ public class Subject<T> extends Observable<T> implements Observer<T> {
     public static <T> Subject<T> subject(Class<T> clazz) {
         return new Subject<>();
     }
+    @JsOverlay
+    public static <T> Subject<T> subject() {
+        return new Subject<>();
+    }
 }

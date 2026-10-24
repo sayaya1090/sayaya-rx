@@ -216,7 +216,8 @@ internal class OperatorTest: GwtTestSpec({
                 "takeUntil()", "first()", "last()", "reduce()", "delay()", "share()", "shareReplay()",
                 "withLatestFrom()", "exhaustMap()", "toArray()", "takeWhile()", "pairwise()",
                 "concat()", "defer()", "empty()", "throwError()", "subscribe(next,error,complete)",
-                "timer(due)", "fromEvent(EventTarget)", "schedule() returns", "catchError()"
+                "timer(due)", "fromEvent(EventTarget)", "schedule() returns", "catchError()",
+                "scanWithSeed()", "throttleTimeScheduler()", "throttleTimeConfig()", "subjectFactories()", "Observer.next()"
             ).forEach { prefix ->
                 Then("$prefix 검증이 실행되고 통과해야 한다") {
                     val found = logs.filter { it.toString().startsWith(prefix) }.map { it.toString() }

@@ -20,6 +20,10 @@ public class AsyncSubject<T> extends Subject<T> {
         return new AsyncSubject<>();
     }
     @JsOverlay
+    public static <T> AsyncSubject<T> async() {
+        return new AsyncSubject<>();
+    }
+    @JsOverlay
     public static <T> AsyncSubject<T> await(Promise<T> promise) {
         AsyncSubject<T> subject = new AsyncSubject<>();
         Observable<T> observable = Observable.from(promise);

@@ -50,14 +50,14 @@ public class ObservableGeneratorTest implements EntryPoint {
     }
     private static void testAjax() {{
         var result = new StringBuilder();
-        fetchJson("https://api.github.com/users?per_page=5", GitHubUser[].class).subscribe(x -> {
+        fetchJson("users.json", GitHubUser[].class).subscribe(x -> {
             for (GitHubUser u : x) result.append(u.id).append(",");
         });
         asyncScheduler().schedule(() -> assertEquals("ajax: fetchJson() should fetch and parse JSON data", "1,2,3,4,5,", result.toString()), 2000);
     }{
         var result = new StringBuilder();
         var request = new AjaxRequest();
-        request.url = "https://api.github.com/users?per_page=5";
+        request.url = "users.json";
         fromRequest(request, GitHubUser[].class).subscribe(x-> {
             result.append(x.responseType).append(";")
                     .append(x.status).append(";");
@@ -69,10 +69,10 @@ public class ObservableGeneratorTest implements EntryPoint {
     } {
         var result = new StringBuilder();
         var request = new AjaxRequest();
-        request.url = "https://api.github.com/invalid-url";
+        request.url = "does-not-exist.json";
         fromRequest(request).catchError(e -> of(e)).subscribe(e->result.append("error:").append(e.message));
         asyncScheduler().schedule(()->{
-            assertEquals("ajax: fromRequest() should handle HTTP errors properly", "error:ajax error", result.toString());
+            assertEquals("ajax: fromRequest() should handle HTTP errors properly", "error:ajax error 404", result.toString());
         }, 2000);
     }}
     private static void testTimer() {
