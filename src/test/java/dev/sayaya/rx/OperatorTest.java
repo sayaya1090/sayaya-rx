@@ -45,6 +45,7 @@ public class OperatorTest implements EntryPoint {
         testMergeAll();
         testExhaustAll();
         testFinalize();
+        testSubscribeLambdaReportsError();
 
         // 현재 켜져 있는 테스트들은 4초( debounce/throttle ) 뒤에 assert가 수행됨.
         // 약간의 여유를 두고 완료 플래그를 올린다.
@@ -404,5 +405,20 @@ public class OperatorTest implements EntryPoint {
                 assertTrue("finalize() should execute callback on unsubscribe", result.toString().endsWith("Sequence Complete"));
             }, 500);
         }
+    }
+    private static void testSubscribeLambdaReportsError() {
+        var result = new StringBuilder();
+        var config = Js.asPropertyMap(Js.asPropertyMap(DomGlobal.window).get("rxjs")).get("config");
+        var cfg = Js.asPropertyMap(config);
+        Object prev = cfg.get("onUnhandledError");
+        cfg.set("onUnhandledError", (dev.sayaya.rx.function.VoidFunction<Object>) e -> result.append("reported;"));
+        of(1, 2).map(i -> {
+            if (i == 2) throw new IllegalStateException("boom");
+            return i;
+        }).subscribe(v -> result.append(v).append(","));
+        asyncScheduler().schedule(() -> {
+            cfg.set("onUnhandledError", prev);
+            assertEquals("subscribe(lambda) should report unhandled stream errors instead of swallowing them", "1,reported;", result.toString());
+        }, 500);
     }
 }

@@ -3,6 +3,7 @@ package dev.sayaya.rx;
 import com.google.gwt.core.client.JavaScriptObject;
 import dev.sayaya.rx.function.Callback;
 import dev.sayaya.rx.function.OperatorFunction;
+import dev.sayaya.rx.function.VoidFunction;
 import dev.sayaya.rx.scheduler.Scheduler;
 import elemental2.core.JsError;
 import elemental2.core.JsNumber;
@@ -17,7 +18,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.*;
 
-import static dev.sayaya.rx.Observer.next;
 import static jsinterop.annotations.JsPackage.GLOBAL;
 
 /**
@@ -131,7 +131,13 @@ public class Observable<T> {
 
     protected Observable(){}
     public native Subscription subscribe(Observer<T> observer);
-    @JsOverlay public final Subscription subscribe(Consumer<T> consumer) {return subscribe(next(consumer)); }
+    @JsMethod(name="subscribe")
+    private native Subscription subscribeNext(VoidFunction<T> next);
+    /**
+     * next 콜백만으로 구독합니다. 에러 콜백이 없으므로, 스트림 에러는 RxJS 기본 동작대로
+     * 처리되지 않은 에러로 보고됩니다(rxjs config.onUnhandledError 또는 비동기 throw).
+     */
+    @JsOverlay public final Subscription subscribe(Consumer<T> consumer) { return subscribeNext(consumer::accept); }
     public native <V> Observable<V> pipe(OperatorFunction<T, V> func);
     @JsOverlay public final <V> Observable<V> map(Function<T, V> func) { return pipe(Operator.map(func)); }
     @JsOverlay public final <V> Observable<V> mergeMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.mergeMap(func)); }

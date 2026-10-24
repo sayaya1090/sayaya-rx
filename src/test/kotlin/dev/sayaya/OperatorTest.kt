@@ -3,6 +3,7 @@ package dev.sayaya
 import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.string.shouldNotContain
 
 @GwtHtml("operator.html")
@@ -185,6 +186,15 @@ internal class OperatorTest: GwtTestSpec({
                 val log = logs.find { it.toString().startsWith("retry()") } as String
                 println(log)
                 log shouldNotContain "Assertion failed!"
+            }
+        }
+
+        When("람다로 구독한 스트림에서 에러가 날 때") {
+            Then("에러가 조용히 사라지지 않고 처리되지 않은 에러로 보고되어야 한다") {
+                val log = logs.find { it.toString().startsWith("subscribe(lambda)") }
+                log.shouldNotBeNull()
+                println(log)
+                log.toString() shouldNotContain "Assertion failed!"
             }
         }
     }
