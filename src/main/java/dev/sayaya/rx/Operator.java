@@ -34,8 +34,6 @@ public class Operator {
     public static <T, R> OperatorFunction<T, R> mergeMap(Function<? super T, ? extends Observable<? extends R>> func) {
         return mergeMap((UnaryFunction<? super T, ? extends Observable<? extends R>>) func::apply);
     }
-    @JsMethod(namespace="rxjs", name="mergeMapTo")
-    public static native <T, R> OperatorFunction<T, R> mergeMapTo(Observable<? extends R> target);
     /**
      * 각 소스 값을 Observable에 투영하여 직렬화된 방식으로 출력 Observable에 병합한 다음, 다음 Observable을 병합하기 전에 각 Observable이 완료될 때까지 기다립니다.
      * @see <a href="https://rxjs.dev/api/index/function/concatMap">Guide</a>
@@ -45,8 +43,6 @@ public class Operator {
     public static <T, R> OperatorFunction<T, R> concatMap(Function<? super T, ? extends Observable<? extends R>> func) {
         return concatMap((UnaryFunction<? super T, ? extends Observable<? extends R>>) func::apply);
     }
-    @JsMethod(namespace="rxjs", name="concatMapTo")
-    public static native <T, R> OperatorFunction<T, R> concatMapTo(Observable<? extends R> target);
 
     /**
      * 소스 옵저버블의 모든 값을 먼저 방출한 후, 완료되면 제공된 각 옵저버블 소스에 하나씩 순차적으로 구독하여, 각 옵저버블의 값을 모두 방출하고, 이전 옵저버블이 완료되어야 다음 옵저버블을 구독합니다.
@@ -65,8 +61,6 @@ public class Operator {
     public static <T, R> OperatorFunction<T, R> switchMap(Function<? super T, ? extends Observable<? extends R>> func) {
         return switchMap((UnaryFunction<? super T, ? extends Observable<? extends R>>) func::apply);
     }
-    @JsMethod(namespace="rxjs", name="switchMapTo")
-    public static native <T, R> OperatorFunction<T, R> switchMapTo(Observable<? extends R> target);
     /**
      * 소스 Observable로부터의 부수작업을 수행하는 데 사용됩니다.
      * @see <a href="https://rxjs.dev/api/index/function/tap">Guide</a>

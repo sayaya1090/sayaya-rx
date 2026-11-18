@@ -49,7 +49,19 @@ source.bufferTime(500).subscribe(list -> list.forEach(...));
 
 `Observable`의 체인 메서드 `debounceTime(int)`/`throttleTime(int, ...)`만 쓰던 코드는 바꿀 필요가 없습니다. `Operator`를 직접 `pipe`에 넘기던 코드만 `new JsNumber(ms)`를 `ms`로 바꿉니다.
 
-## 4. 추가된 API (기존 코드에 영향 없음)
+## 4. RxJS 7 deprecated `*MapTo` 바인딩 제거
+
+RxJS 7에서 deprecated된 `mergeMapTo`/`concatMapTo`/`switchMapTo`의 네이티브 바인딩을 제거했습니다.
+
+| 2.x | 3.0 |
+|---|---|
+| `Operator.mergeMapTo(target)` | `Operator.mergeMap(v -> target)` |
+| `Operator.concatMapTo(target)` | `Operator.concatMap(v -> target)` |
+| `Operator.switchMapTo(target)` | `Operator.switchMap(v -> target)` |
+
+`observable.mergeMap(target)`/`concatMap(target)`/`switchMap(target)`(Observable 인자 오버로드)는 그대로 쓸 수 있습니다. 내부적으로 `v -> target` 매퍼로 바뀌었고 동작은 같습니다.
+
+## 5. 추가된 API (기존 코드에 영향 없음)
 
 RxJS 7.8.2 타입 정의에서 deprecated가 아닌 시그니처만 바인딩했습니다. `thisArg`·`scheduler` 인자처럼 deprecated된 오버로드는 넣지 않았습니다.
 

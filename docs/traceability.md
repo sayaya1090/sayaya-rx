@@ -19,7 +19,7 @@
 | FR-05 | UC-03 | 변환: `map`, `scan`, `reduce`, `toArray`, `pairwise` | `Observable.map` → `Operator.map`, `scan`, `reduce`, `toArray`, `pairwise` | OP: `map()`, `scan()`, `scanWithSeed()`, `reduce()`, `toArray()`, `pairwise()` |
 | FR-05 | UC-03 | 필터: `filter`, `take`, `skip`, `distinct`, `distinctUntilChanged`, `first`, `last`, `takeUntil`, `takeWhile` | `Observable.*` → `Operator.*` | OP: `filter()`, `take()`, `skip()`, `distinct()`, `distinctUntilChanged()`, `first()`, `last()`, `takeUntil()`, `takeWhile()` |
 | FR-05 | UC-03 | 결합: `zip`, `combineLatest`, `withLatestFrom`, `concatWith`, `startWith` | `Observable.*` → `Operator.*` | OP: `zip()`, `combineLatest()`, `withLatestFrom()`, `concatWith()`, `startWith()` |
-| FR-05 | UC-03 | 평탄화: `mergeMap`, `concatMap`, `switchMap`, `exhaustMap` | `Observable.*` → `Operator.*` (`Observable` 인자 오버로드는 `*MapTo`) | OP: `mergeMap()`, `concatMap()`, `switchMap()`, `exhaustMap()` |
+| FR-05 | UC-03 | 평탄화: `mergeMap`, `concatMap`, `switchMap`, `exhaustMap` | `Observable.*` → `Operator.*` (`Observable` 인자 오버로드는 `v -> target` 매퍼로 위임. deprecated `*MapTo`는 3.0.0에서 제거) | OP: `mergeMap()`, `concatMap()`, `switchMap()`, `exhaustMap()` |
 | FR-05 | UC-03 | 고차: `concatAll`, `switchAll`, `mergeAll`, `exhaustAll` | `Observable.*(Class)` → `flatten` → `Operator.*` | OP: `concatAll()`, `switchAll()`, `mergeAll()`, `exhaustAll()` |
 | FR-05 | UC-03 | 버퍼: `bufferTime`, `windowTime` | `Observable.*` → `Operator.*` | OP: `bufferTime()`, `windowTime()` |
 | FR-05 | UC-03 | 유틸리티: `tap`, `finalize`, `delay`, `share`, `shareReplay` | `Observable.*` → `Operator.*` | OP: `tap()`, `finalize()`, `delay()`, `share()`, `shareReplay()` |

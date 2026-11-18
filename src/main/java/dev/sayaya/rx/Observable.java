@@ -327,12 +327,12 @@ public class Observable<T> {
     public native <V> Observable<V> pipe(OperatorFunction<T, V> func);
     @JsOverlay public final <V> Observable<V> map(Function<T, V> func) { return pipe(Operator.map(func)); }
     @JsOverlay public final <V> Observable<V> mergeMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.mergeMap(func)); }
-    @JsOverlay public final <V> Observable<V> mergeMap(Observable<? extends V> target) { return pipe(Operator.mergeMapTo(target)); }
+    @JsOverlay public final <V> Observable<V> mergeMap(Observable<? extends V> target) { return pipe(Operator.<T, V>mergeMap((Function<? super T, ? extends Observable<? extends V>>) v -> target)); }
     @JsOverlay public final <V> Observable<V> concatMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.concatMap(func)); }
-    @JsOverlay public final <V> Observable<V> concatMap(Observable<? extends V> target) { return pipe(Operator.concatMapTo(target)); }
+    @JsOverlay public final <V> Observable<V> concatMap(Observable<? extends V> target) { return pipe(Operator.<T, V>concatMap((Function<? super T, ? extends Observable<? extends V>>) v -> target)); }
     @SafeVarargs @JsOverlay public final Observable<T> concatWith(Observable<T>... observers) { return pipe(Operator.concatWith(observers)); }
     @JsOverlay public final <V> Observable<V> switchMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.switchMap(func)); }
-    @JsOverlay public final <V> Observable<V> switchMap(Observable<? extends V> target) { return pipe(Operator.switchMapTo(target)); }
+    @JsOverlay public final <V> Observable<V> switchMap(Observable<? extends V> target) { return pipe(Operator.<T, V>switchMap((Function<? super T, ? extends Observable<? extends V>>) v -> target)); }
     @JsOverlay public final Observable<T> tap(Consumer<T> consumer) { return pipe(Operator.tap(consumer::accept)); }
     @JsOverlay public final Observable<T> tap(Observer<T> observer) { return pipe(Operator.tap(observer)); }
     @JsOverlay public final Observable<List<T>> zip(Observable<? extends T> observable) {
