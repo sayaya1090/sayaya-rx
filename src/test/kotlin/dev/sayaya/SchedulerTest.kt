@@ -34,5 +34,9 @@ internal class SchedulerTest: GwtTestSpec({
         When("asyncScheduler.schedule(state)로 작업을 다시 예약할 때") {
             Then("새 state로 작업이 다시 실행되어야 한다") { logs.shouldPassAll("asyncScheduler.schedule(state)") }
         }
+
+        When("animationFrameScheduler를 사용할 때") {
+            Then("애니메이션 프레임에서 비동기로 실행되어야 한다") { logs.shouldPassAll("animationFrameScheduler()") }
+        }
     }
 })

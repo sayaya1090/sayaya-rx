@@ -56,6 +56,7 @@ UC-07(RxJS 바인딩 추가)의 상세 절차입니다. 설계 원칙은 [설계
 | `TypeError: headers.get is not a function` | 네이티브 JS 객체를 `java.util.Map`으로 선언 | `JsPropertyMap<String>`으로 선언 | `AjaxRequest.headers`, `AjaxResponse.headers` |
 | `TypeError: You provided an invalid object where a stream was expected` | Java 가변인자(`Object...`)가 JS 인자 여러 개로 펼쳐짐 | 배열 하나를 넘겨야 하면 `(Object) array`로 넘김 | `from(List)` |
 | 람다 구독에서 스트림 에러가 사라짐 | 빈 `error()`를 가진 익명 `Observer`로 감쌈 | JS 함수를 그대로 넘기는 private native 오버로드(`subscribeNext`) | `subscribe(Consumer)` |
+| Elemento의 `keydown`·`mousedown` 등을 넘기면 컴파일 오류(`EventType<KeyboardEvent,EventTarget> cannot be converted to EventType<KeyboardEvent,Element>`) | Elemento는 이벤트마다 두 번째 타입 인자를 `Element` 또는 `EventTarget`으로 다르게 선언함 | 바인딩 파라미터를 `EventType<E, ?>`로 받음 | `fromKeyboardEvent`, `fromMouseEvent` |
 | javac `unchecked` 경고 | 제네릭 캐스트 `(Observable<O>) this` | `Js.uncheckedCast`를 private helper 한 곳에 모음 | `flatten` |
 
 ## 코딩 규칙

@@ -57,7 +57,7 @@ GWT 모듈에 다음 내용을 추가하세요:
 - `merge()`: 여러 Observable 병합
 - `fromEvent()`: DOM 이벤트를 Observable로 변환
 - `interval()`: 주기적으로 값 발행
-- `ajax()`: HTTP 요청을 Observable로 변환
+- `fromRequest()` / `fetchJson()`: HTTP 요청(RxJS `ajax`)을 Observable로 변환
 
 ### Operators
 - **변환**: map, mergeMap, concatMap, switchMap

@@ -10,6 +10,8 @@ import static dev.sayaya.rx.Helper.*;
 import static dev.sayaya.rx.scheduler.Scheduler.asyncScheduler;
 import static elemental2.dom.DomGlobal.document;
 import static org.jboss.elemento.EventType.click;
+import static org.jboss.elemento.EventType.keydown;
+import static org.jboss.elemento.EventType.mousedown;
 import static dev.sayaya.rx.Observable.*;
 
 public class ObservableGeneratorTest implements EntryPoint {
@@ -20,6 +22,8 @@ public class ObservableGeneratorTest implements EntryPoint {
         testOf();
         testRange();
         testFromEvent();
+        testFromKeyboardEvent();
+        testFromMouseEventWithEventTargetType();
         testAjax();
         testTimer();
         testMerge();
@@ -44,6 +48,27 @@ public class ObservableGeneratorTest implements EntryPoint {
         fromMouseEvent(document, click).subscribe(evt->called.set(true));
         document.documentElement.click();
         assertTrue("fromEvent() should capture DOM events", called.get());
+    }
+    private static elemental2.dom.KeyboardEvent key(String key) {
+        var init = elemental2.dom.KeyboardEventInit.create();
+        init.setKey(key);
+        return new elemental2.dom.KeyboardEvent("keydown", init);
+    }
+    private static void testFromKeyboardEvent() {
+        var result = new StringBuilder();
+        var subscription = fromKeyboardEvent(document, keydown).subscribe(evt -> result.append(evt.key).append(","));
+        document.dispatchEvent(key("a"));
+        document.dispatchEvent(key("b"));
+        subscription.unsubscribe();
+        document.dispatchEvent(key("c"));
+        assertEquals("fromKeyboardEvent() should capture keyboard events until unsubscribed", "a,b,", result.toString());
+    }
+    private static void testFromMouseEventWithEventTargetType() {
+        var called = new AtomicBoolean(false);
+        var subscription = fromMouseEvent(document, mousedown).subscribe(evt -> called.set(true));
+        document.dispatchEvent(new elemental2.dom.MouseEvent("mousedown"));
+        subscription.unsubscribe();
+        assertTrue("fromMouseEvent(mousedown) should accept EventTarget-typed event types", called.get());
     }
     private static void testAjax() {{
         var result = new StringBuilder();

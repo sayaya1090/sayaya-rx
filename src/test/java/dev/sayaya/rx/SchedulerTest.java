@@ -18,12 +18,17 @@ public class SchedulerTest implements EntryPoint {
         testQueueScheduler();
         testSchedulerOrder();
         testScheduleWithState();
+        testAnimationFrameScheduler();
 
-        // 가장 늦은 assert가 2000ms에 실행되므로 넉넉히 여유를 둔다.
-        asyncScheduler().schedule(() -> {
-            Js.asPropertyMap(DomGlobal.window).set("__TEST_DONE__", true);
-            DomGlobal.console.log("__TEST_DONE__=true");
-        }, 3500);
+        // 가장 늦은 고정 지연 assert가 2000ms에 실행되므로 넉넉히 기다린 뒤, 진행 중인 eventually 검사가 끝나면 완료 신호를 올린다.
+        signalDoneWhenSettled(3500);
+    }
+
+    private static void testAnimationFrameScheduler() {
+        var result = new StringBuilder("Start;");
+        animationFrameScheduler(Void.class).schedule(() -> result.append("Frame;"), 0);
+        result.append("Sync;");
+        eventually("animationFrameScheduler() should run work asynchronously on an animation frame", "Start;Sync;Frame;", result, 3000);
     }
 
     private static void testAsyncScheduler() {

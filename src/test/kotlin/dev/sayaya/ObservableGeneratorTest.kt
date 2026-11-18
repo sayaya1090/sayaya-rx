@@ -23,6 +23,12 @@ internal class ObservableGeneratorTest: GwtTestSpec({
         When("fromEvent()로 Observable을 생성할 때") {
             Then("DOM 이벤트를 캡처해야 한다") { logs.shouldPassAll("fromEvent") }
         }
+        When("fromKeyboardEvent()로 Observable을 생성할 때") {
+            Then("키보드 이벤트를 구독 해제 전까지 캡처해야 한다") { logs.shouldPassAll("fromKeyboardEvent()") }
+        }
+        When("fromMouseEvent()에 EventTarget 타입의 이벤트(mousedown)를 줄 때") {
+            Then("마우스 이벤트를 캡처해야 한다") { logs.shouldPassAll("fromMouseEvent(mousedown)") }
+        }
         When("ajax()로 Observable을 생성할 때") {
             Then("HTTP 요청을 통해 데이터를 가져와야 한다") { logs.shouldPassAll("ajax") }
         }

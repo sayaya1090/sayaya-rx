@@ -13,8 +13,8 @@
 | FR-01 | UC-01 | `merge`, `forkJoin`, `concat` | `Observable.merge`, `forkJoin`, `concat` | OG: `merge`, `forkJoin` / OP: `concat()` |
 | FR-01 | UC-01 | `defer`, `empty`, `throwError` | `Observable.defer`, `empty` (`rxjs.EMPTY`), `throwError` → `throwErrorWith` | OP: `defer()`, `empty()`, `throwError()` |
 | FR-02 | UC-01 | `interval`, `timer` | `Observable.interval(int)`, `interval()`, `timer(int, int)`, `timer(int)` → `toInt` | OG: `interval`, `timer` / OP: `timer(due)` |
-| FR-03 | UC-01 | `fromEvent`, `fromMouseEvent` | `Observable.fromEvent(EventTarget, String)`, `fromMouseEvent` | OG: `fromEvent` / OP: `fromEvent(EventTarget)` |
-| FR-03 | UC-01 | `fromKeyboardEvent` | `Observable.fromKeyboardEvent` | **없음** |
+| FR-03 | UC-01 | `fromEvent`, `fromMouseEvent` | `Observable.fromEvent(EventTarget, String)`, `fromMouseEvent(EventTarget, EventType<MouseEvent, ?>)` | OG: `fromEvent`, `fromMouseEvent(mousedown)` / OP: `fromEvent(EventTarget)` |
+| FR-03 | UC-01 | `fromKeyboardEvent` | `Observable.fromKeyboardEvent(EventTarget, EventType<KeyboardEvent, ?>)` | OG: `fromKeyboardEvent()` |
 | FR-04 | UC-02 | `fromRequest`, `fetchJson` | `Observable.fromRequest(AjaxRequest[, Class])` (`rxjs.ajax.ajax`), `fetchJson(String[, Class])` (`rxjs.ajax.ajax.getJSON`), `AjaxRequest`, `AjaxResponse` | OG: `ajax`, `headers(ajax)` |
 | FR-05 | UC-03 | 변환: `map`, `scan`, `reduce`, `toArray`, `pairwise` | `Observable.map` → `Operator.map`, `scan`, `reduce`, `toArray`, `pairwise` | OP: `map()`, `scan()`, `scanWithSeed()`, `reduce()`, `toArray()`, `pairwise()` |
 | FR-05 | UC-03 | 필터: `filter`, `take`, `skip`, `distinct`, `distinctUntilChanged`, `first`, `last`, `takeUntil`, `takeWhile` | `Observable.*` → `Operator.*` | OP: `filter()`, `take()`, `skip()`, `distinct()`, `distinctUntilChanged()`, `first()`, `last()`, `takeUntil()`, `takeWhile()` |
@@ -27,9 +27,9 @@
 | FR-07 | UC-04 | `subscribe(...)`, `unsubscribe` | `Observable.subscribe(Observer)`, `subscribe(Consumer[, Consumer, Callback])`, `Observer.next(Consumer)`, `Subscription.unsubscribe` | OP: `subscribe(next,error,complete)`, `Observer.next()`; `unsubscribe`는 `finalize()` 검증 안에서 호출 |
 | FR-08 | UC-04, UC-03 | `catchError`, `retry`, 람다 구독 에러 보고 | `Observable.catchError`, `retry`, `subscribeNext` | OP: `catchError()`, `retry()`, `subscribe(lambda)` |
 | FR-09 | UC-05 | `subject`, `behavior`, `replayWithBuffer`, `async` | `Subject.subject`, `BehaviorSubject.behavior`, `ReplaySubject.replay*`, `AsyncSubject.async` | SU: `Subject`, `BehaviorSubject`, `ReplaySubject`, `AsyncSubject` / OP: `subjectFactories()` |
-| FR-09 | UC-05 | `getValue`, `asObservable`, `await`, `json`, `replayWithBufferAndWindowTime` | `BehaviorSubject.getValue`, `Subject.asObservable`, `AsyncSubject.await/json`, `ReplaySubject.replayWithBufferAndWindowTime` | **없음** |
+| FR-09 | UC-05 | `getValue`, `asObservable`, `await`, `json`, `replayWithBufferAndWindowTime` | `BehaviorSubject.getValue`, `Subject.asObservable`, `AsyncSubject.await/json`, `ReplaySubject.replayWithBufferAndWindowTime` | SU: `getValue()`, `asObservable()`, `await()`, `json()`, `replayWithBufferAndWindowTime()` |
 | FR-10 | UC-06 | `asyncScheduler`, `asapScheduler`, `queueScheduler`, `schedule` | `Scheduler.*`, `AsyncScheduler.schedule(...)`, `TaskScheduler.schedule` | SC: `asyncScheduler()`, `asapScheduler()`, `queueScheduler()`, `All schedulers`, `asyncScheduler.schedule(state)` / OP: `schedule() returns` |
-| FR-10 | UC-06 | `animationFrameScheduler` | `Scheduler.animationFrameScheduler(Class)` | **없음** |
+| FR-10 | UC-06 | `animationFrameScheduler` | `Scheduler.animationFrameScheduler(Class)` | SC: `animationFrameScheduler()` |
 
 ## 유지보수·비기능 요구사항
 
@@ -46,12 +46,6 @@
 
 ## 테스트 공백
 
-위 표에서 **없음**으로 표시한 공개 API는 브라우저 테스트가 직접 호출하지 않습니다(2026-11, `src/test/java`의 이름 검색 기준).
+2026-11 기준, 위 표의 모든 공개 API를 브라우저 테스트가 직접 호출합니다(공백 없음).
 
-- `Observable.fromKeyboardEvent`
-- `Subject.asObservable`, `BehaviorSubject.getValue`
-- `AsyncSubject.await`, `AsyncSubject.json`
-- `ReplaySubject.replayWithBufferAndWindowTime`
-- `Scheduler.animationFrameScheduler`
-
-다음 반복에서 검증을 추가할 후보입니다.
+이전에 공백이던 7개 API(`fromKeyboardEvent`, `asObservable`, `getValue`, `await`, `json`, `replayWithBufferAndWindowTime`, `animationFrameScheduler`)에 검증을 추가하는 과정에서 결함 하나를 찾아 고쳤습니다. `fromKeyboardEvent`/`fromMouseEvent`가 `EventType<…, Element>`만 받아서, Elemento가 `EventType<…, EventTarget>`으로 선언한 `keydown`·`keyup`·`keypress`·`mousedown` 등을 넘길 수 없었습니다. 지금은 `EventType<…, ?>`를 받습니다(기존 호출은 그대로 컴파일됨).

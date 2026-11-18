@@ -77,10 +77,10 @@ public class Observable<T> {
      */
     @JsMethod(namespace="rxjs", name="fromEvent")
     public static native Observable<Event> fromEvent(EventTarget target, String eventName);
-    @JsOverlay public static Observable<MouseEvent> fromMouseEvent(EventTarget target, EventType<MouseEvent, Element> evt) {
+    @JsOverlay public static Observable<MouseEvent> fromMouseEvent(EventTarget target, EventType<MouseEvent, ?> evt) {
         return fromEvent(target, evt.name).map(e->(MouseEvent)e);
     }
-    @JsOverlay public static Observable<KeyboardEvent> fromKeyboardEvent(EventTarget target, EventType<KeyboardEvent, Element> evt) {
+    @JsOverlay public static Observable<KeyboardEvent> fromKeyboardEvent(EventTarget target, EventType<KeyboardEvent, ?> evt) {
         return fromEvent(target, evt.name).map(e->(KeyboardEvent)e);
     }
     /**

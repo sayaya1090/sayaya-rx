@@ -30,10 +30,10 @@ sequenceDiagram
 
 | 모듈 (`*.gwt.xml`) | EntryPoint | 페이지 | Kotlin spec | 테스트 케이스 수* |
 |---|---|---|---|---|
-| `dev.sayaya.ObservableGeneratorTest` | `ObservableGeneratorTest.java` | `observable_generator.html` | `ObservableGeneratorTest.kt` | 9 |
+| `dev.sayaya.ObservableGeneratorTest` | `ObservableGeneratorTest.java` | `observable_generator.html` | `ObservableGeneratorTest.kt` | 11 |
 | `dev.sayaya.OperatorTest` | `OperatorTest.java` | `operator.html` | `OperatorTest.kt` | 53 |
-| `dev.sayaya.SubjectTest` | `SubjectTest.java` | `subject.html` | `SubjectTest.kt` | 4 |
-| `dev.sayaya.SchedulerTest` | `SchedulerTest.java` | `scheduler.html` | `SchedulerTest.kt` | 5 |
+| `dev.sayaya.SubjectTest` | `SubjectTest.java` | `subject.html` | `SubjectTest.kt` | 9 |
+| `dev.sayaya.SchedulerTest` | `SchedulerTest.java` | `scheduler.html` | `SchedulerTest.kt` | 6 |
 
 \* 2026-11 기준 `build/test-results/test/*.xml`의 `tests` 값.
 
@@ -59,5 +59,4 @@ sequenceDiagram
 
 ## 남은 개선점
 
-- `SubjectTest.kt`는 완료 신호 대신 `sleep(1000)`으로 기다립니다(EntryPoint가 동기 검사만 하므로 현재는 안전). `SubjectTest.java`가 `signalDoneWhenSettled(0)`을 호출하게 바꾸면 다른 spec과 같은 방식이 됩니다.
 - `OperatorTest.java`와 `SchedulerTest.java`에는 아직 고정 지연 assert가 남아 있습니다(zip, combineLatest, debounce, throttle, bufferTime, windowTime 등).
