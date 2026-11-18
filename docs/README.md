@@ -2,7 +2,7 @@
 
 이 문서는 Unified Process(UP)의 산출물 구성을 따릅니다. 요구사항에서 유스케이스, 시스템 연산, 설계(클래스·연산), 테스트까지 이름으로 추적할 수 있게 썼습니다.
 
-> 기준 시점: 버전 2.4.0 이후의 `main`(GWT 2.13.1, Elemento 2.5.14, JDK toolchain 21, gwt-test 2.3.0, 테스트용 RxJS 7.8.2).
+> 기준 시점: 버전 3.0.0(GWT 2.13.1, `dev.sayaya.gwt`·gwt-test 2.4.0, Elemento 2.5.14, JDK toolchain 21, 테스트용 RxJS 7.8.2).
 > 코드가 바뀌면 문서의 해당 산출물과 [추적성 표](traceability.md)를 함께 고칩니다.
 
 ## 개발 사례 (Development Case)

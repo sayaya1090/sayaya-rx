@@ -102,7 +102,7 @@ flowchart TB
 | 항목 | 값 | 위치 |
 |---|---|---|
 | GWT | 2.13.1, `sourceLevel = "auto"`, `strict = true`, `draftCompile = true`, `generateJsInteropExports = true` | `build.gradle.kts` `tasks.gwt` |
-| GWT 플러그인 | `dev.sayaya.gwt` 2.3.0 | `build.gradle.kts` `plugins` |
+| GWT 플러그인 | `dev.sayaya.gwt` 2.4.0 | `build.gradle.kts` `plugins` |
 | Kotlin(테스트용) | 2.4.21, `jvmToolchain(21)` | `build.gradle.kts` |
-| 의존성 | `elemento-core` 2.5.14, 테스트 `gwt-test` 2.3.0 | `build.gradle.kts` `dependencies` |
+| 의존성 | `elemento-core` 2.5.14, 테스트 `gwt-test` 2.4.0 | `build.gradle.kts` `dependencies` |
 | Gradle | wrapper 9.9.1 (로컬). CI는 러너의 `gradle` 사용 | `gradle/wrapper` (git 미추적) |

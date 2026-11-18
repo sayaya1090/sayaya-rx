@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.sayaya:rx:2.4.0")
+    implementation("dev.sayaya:rx:3.0.0")
 }
 ```
 
@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.sayaya:rx:2.4.0")
+    implementation("dev.sayaya:rx:3.0.0")
 }
 ```
 
@@ -142,7 +142,7 @@ Unified Process 형식의 개발 문서(비전, 요구사항, 유스케이스, �
 
 ## 버전
 
-현재 버전: 2.4.0
+현재 버전: 3.0.0 (2.x에서 옮기는 방법은 [3.0 마이그레이션 가이드](docs/04-transition/migration-3.0.md))
 
 ## 라이선스
 
