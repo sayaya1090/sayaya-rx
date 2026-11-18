@@ -2,9 +2,12 @@ package dev.sayaya.rx;
 
 import dev.sayaya.rx.function.*;
 import dev.sayaya.rx.scheduler.AsyncScheduler;
+import dev.sayaya.rx.scheduler.TaskScheduler;
 import elemental2.core.JsArray;
 import elemental2.core.JsError;
+import elemental2.core.JsNumber;
 import jsinterop.annotations.JsMethod;
+import jsinterop.base.JsPropertyMap;
 
 import java.util.function.Function;
 import java.util.function.BiFunction;
@@ -325,4 +328,122 @@ public class Operator {
      */
     @JsMethod(namespace="rxjs", name="pairwise")
     public static native <T> OperatorFunction<T, JsArray<T>> pairwise();
+
+    // ===== RxJS 7 추가 연산자 (https://rxjs.dev/api) =====
+    @JsMethod(namespace="rxjs", name="takeLast") public static native <T> OperatorFunction<T, T> takeLast(int count);
+    @JsMethod(namespace="rxjs", name="skipLast") public static native <T> OperatorFunction<T, T> skipLast(int count);
+    @JsMethod(namespace="rxjs", name="skipWhile") public static native <T> OperatorFunction<T, T> skipWhile(PredicateWithIndex<T> predicate);
+    @JsMethod(namespace="rxjs", name="skipUntil") public static native <T> OperatorFunction<T, T> skipUntil(Observable<?> notifier);
+    @JsMethod(namespace="rxjs", name="elementAt") public static native <T> OperatorFunction<T, T> elementAt(int index);
+    @JsMethod(namespace="rxjs", name="elementAt") public static native <T> OperatorFunction<T, T> elementAt(int index, T defaultValue);
+    @JsMethod(namespace="rxjs", name="ignoreElements") public static native <T> OperatorFunction<T, T> ignoreElements();
+    @JsMethod(namespace="rxjs", name="single") public static native <T> OperatorFunction<T, T> single();
+    @JsMethod(namespace="rxjs", name="single") public static native <T> OperatorFunction<T, T> single(PredicateWithIndex<T> predicate);
+    @JsMethod(namespace="rxjs", name="count") public static native <T> OperatorFunction<T, JsNumber> count();
+    @JsMethod(namespace="rxjs", name="count") public static native <T> OperatorFunction<T, JsNumber> count(PredicateWithIndex<T> predicate);
+    @JsMethod(namespace="rxjs", name="every") public static native <T> OperatorFunction<T, Boolean> every(PredicateWithIndex<T> predicate);
+    @JsMethod(namespace="rxjs", name="find") public static native <T> OperatorFunction<T, T> find(PredicateWithIndex<T> predicate);
+    @JsMethod(namespace="rxjs", name="findIndex") public static native <T> OperatorFunction<T, JsNumber> findIndex(PredicateWithIndex<T> predicate);
+    @JsMethod(namespace="rxjs", name="isEmpty") public static native <T> OperatorFunction<T, Boolean> isEmpty();
+    @JsMethod(namespace="rxjs", name="defaultIfEmpty") public static native <T> OperatorFunction<T, T> defaultIfEmpty(T defaultValue);
+    @JsMethod(namespace="rxjs", name="throwIfEmpty") public static native <T> OperatorFunction<T, T> throwIfEmpty();
+    @JsMethod(namespace="rxjs", name="throwIfEmpty") public static native <T> OperatorFunction<T, T> throwIfEmpty(Factory<Object> errorFactory);
+    @JsMethod(namespace="rxjs", name="max") public static native <T> OperatorFunction<T, T> max();
+    @JsMethod(namespace="rxjs", name="max") public static native <T> OperatorFunction<T, T> max(Comparer<T> comparer);
+    @JsMethod(namespace="rxjs", name="min") public static native <T> OperatorFunction<T, T> min();
+    @JsMethod(namespace="rxjs", name="min") public static native <T> OperatorFunction<T, T> min(Comparer<T> comparer);
+    @SafeVarargs @JsMethod(namespace="rxjs", name="mergeWith") public static native <T> OperatorFunction<T, T> mergeWith(Observable<? extends T>... others);
+    @JsMethod(namespace="rxjs", name="combineLatestWith") public static native <T> OperatorFunction<T, JsArray<Object>> combineLatestWith(Observable<?>... others);
+    @JsMethod(namespace="rxjs", name="zipWith") public static native <T> OperatorFunction<T, JsArray<Object>> zipWith(Observable<?>... others);
+    @SafeVarargs @JsMethod(namespace="rxjs", name="raceWith") public static native <T> OperatorFunction<T, T> raceWith(Observable<? extends T>... others);
+    @SafeVarargs @JsMethod(namespace="rxjs", name="endWith") public static native <T> OperatorFunction<T, T> endWith(T... values);
+    @SafeVarargs @JsMethod(namespace="rxjs", name="onErrorResumeNextWith") public static native <T> OperatorFunction<T, T> onErrorResumeNextWith(Observable<? extends T>... sources);
+    @JsMethod(namespace="rxjs", name="auditTime") public static native <T> OperatorFunction<T, T> auditTime(int duration);
+    @JsMethod(namespace="rxjs", name="audit") public static native <T> OperatorFunction<T, T> audit(UnaryFunction<T, Observable<?>> durationSelector);
+    @JsMethod(namespace="rxjs", name="sampleTime") public static native <T> OperatorFunction<T, T> sampleTime(int period);
+    @JsMethod(namespace="rxjs", name="sample") public static native <T> OperatorFunction<T, T> sample(Observable<?> notifier);
+    @JsMethod(namespace="rxjs", name="throttle") public static native <T> OperatorFunction<T, T> throttle(UnaryFunction<T, Observable<?>> durationSelector);
+    @JsMethod(namespace="rxjs", name="throttle") public static native <T> OperatorFunction<T, T> throttle(UnaryFunction<T, Observable<?>> durationSelector, JsPropertyMap<Object> config);
+    @JsMethod(namespace="rxjs", name="timeout") public static native <T> OperatorFunction<T, T> timeout(int each);
+    @JsMethod(namespace="rxjs", name="timeout") public static native <T> OperatorFunction<T, T> timeout(JsPropertyMap<Object> config);
+    @JsMethod(namespace="rxjs", name="delayWhen") public static native <T> OperatorFunction<T, T> delayWhen(ProjectWithIndex<T, Observable<?>> delayDurationSelector);
+    @JsMethod(namespace="rxjs", name="timestamp") public static native <T> OperatorFunction<T, Timestamp<T>> timestamp();
+    @JsMethod(namespace="rxjs", name="timeInterval") public static native <T> OperatorFunction<T, TimeInterval<T>> timeInterval();
+    @JsMethod(namespace="rxjs", name="repeat") public static native <T> OperatorFunction<T, T> repeat();
+    @JsMethod(namespace="rxjs", name="repeat") public static native <T> OperatorFunction<T, T> repeat(int count);
+    @JsMethod(namespace="rxjs", name="repeat") public static native <T> OperatorFunction<T, T> repeat(JsPropertyMap<Object> config);
+    @JsMethod(namespace="rxjs", name="retry") public static native <T> OperatorFunction<T, T> retry(JsPropertyMap<Object> config);
+    @JsMethod(namespace="rxjs", name="share") public static native <T> OperatorFunction<T, T> share(JsPropertyMap<Object> config);
+    @JsMethod(namespace="rxjs", name="shareReplay") public static native <T> OperatorFunction<T, T> shareReplay(JsPropertyMap<Object> config);
+    @JsMethod(namespace="rxjs", name="connect") public static native <T, R> OperatorFunction<T, R> connect(UnaryFunction<Observable<T>, Observable<R>> selector);
+    @JsMethod(namespace="rxjs", name="bufferCount") public static native <T> OperatorFunction<T, JsArray<T>> bufferCount(int bufferSize);
+    @JsMethod(namespace="rxjs", name="bufferCount") public static native <T> OperatorFunction<T, JsArray<T>> bufferCount(int bufferSize, int startBufferEvery);
+    @JsMethod(namespace="rxjs", name="buffer") public static native <T> OperatorFunction<T, JsArray<T>> buffer(Observable<?> closingNotifier);
+    @JsMethod(namespace="rxjs", name="bufferWhen") public static native <T> OperatorFunction<T, JsArray<T>> bufferWhen(Factory<Observable<?>> closingSelector);
+    @JsMethod(namespace="rxjs", name="bufferToggle") public static native <T, O> OperatorFunction<T, JsArray<T>> bufferToggle(Observable<O> openings, UnaryFunction<O, Observable<?>> closingSelector);
+    @JsMethod(namespace="rxjs", name="windowCount") public static native <T> OperatorFunction<T, Observable<T>> windowCount(int windowSize);
+    @JsMethod(namespace="rxjs", name="windowCount") public static native <T> OperatorFunction<T, Observable<T>> windowCount(int windowSize, int startWindowEvery);
+    @JsMethod(namespace="rxjs", name="window") public static native <T> OperatorFunction<T, Observable<T>> window(Observable<?> windowBoundaries);
+    @JsMethod(namespace="rxjs", name="windowWhen") public static native <T> OperatorFunction<T, Observable<T>> windowWhen(Factory<Observable<?>> closingSelector);
+    @JsMethod(namespace="rxjs", name="windowToggle") public static native <T, O> OperatorFunction<T, Observable<T>> windowToggle(Observable<O> openings, UnaryFunction<O, Observable<?>> closingSelector);
+    @JsMethod(namespace="rxjs", name="observeOn") public static native <T> OperatorFunction<T, T> observeOn(AsyncScheduler<?> scheduler);
+    @JsMethod(namespace="rxjs", name="observeOn") public static native <T> OperatorFunction<T, T> observeOn(TaskScheduler scheduler);
+    @JsMethod(namespace="rxjs", name="subscribeOn") public static native <T> OperatorFunction<T, T> subscribeOn(AsyncScheduler<?> scheduler);
+    @JsMethod(namespace="rxjs", name="subscribeOn") public static native <T> OperatorFunction<T, T> subscribeOn(TaskScheduler scheduler);
+    @JsMethod(namespace="rxjs", name="groupBy") public static native <T, K> OperatorFunction<T, GroupedObservable<K, T>> groupBy(UnaryFunction<T, K> key);
+    @JsMethod(namespace="rxjs", name="groupBy") public static native <T, K, E> OperatorFunction<T, GroupedObservable<K, E>> groupBy(UnaryFunction<T, K> key, JsPropertyMap<Object> options);
+    @JsMethod(namespace="rxjs", name="materialize") public static native <T> OperatorFunction<T, ObservableNotification<T>> materialize();
+    @JsMethod(namespace="rxjs", name="dematerialize") public static native <T> OperatorFunction<ObservableNotification<T>, T> dematerialize();
+    @JsMethod(namespace="rxjs", name="expand") public static native <T> OperatorFunction<T, T> expand(ProjectWithIndex<T, Observable<T>> project);
+    @JsMethod(namespace="rxjs", name="expand") public static native <T> OperatorFunction<T, T> expand(ProjectWithIndex<T, Observable<T>> project, int concurrent);
+    @JsMethod(namespace="rxjs", name="mergeScan") public static native <T, R> OperatorFunction<T, R> mergeScan(IndexedAccumulator<R, T, Observable<R>> accumulator, R seed);
+    @JsMethod(namespace="rxjs", name="mergeScan") public static native <T, R> OperatorFunction<T, R> mergeScan(IndexedAccumulator<R, T, Observable<R>> accumulator, R seed, int concurrent);
+    @JsMethod(namespace="rxjs", name="switchScan") public static native <T, R> OperatorFunction<T, R> switchScan(IndexedAccumulator<R, T, Observable<R>> accumulator, R seed);
+    @JsMethod(namespace="rxjs", name="sequenceEqual") public static native <T> OperatorFunction<T, Boolean> sequenceEqual(Observable<T> compareTo);
+    @JsMethod(namespace="rxjs", name="sequenceEqual") public static native <T> OperatorFunction<T, Boolean> sequenceEqual(Observable<T> compareTo, Reducer<T, T, Boolean> comparator);
+    @JsMethod(namespace="rxjs", name="combineLatestAll") public static native OperatorFunction<Observable<?>, JsArray<Object>> combineLatestAll();
+    @JsMethod(namespace="rxjs", name="zipAll") public static native OperatorFunction<Observable<?>, JsArray<Object>> zipAll();
+    @JsMethod(namespace="rxjs", name="distinctUntilKeyChanged") public static native <T> OperatorFunction<T, T> distinctUntilKeyChanged(String key);
+
+    // ===== 설정 객체(RetryConfig, RepeatConfig, ShareConfig, ShareReplayConfig) =====
+    // 숫자는 Java Integer가 아니라 JS number(double)로 넣어야 RxJS가 읽을 수 있습니다.
+    /** RetryConfig {count, delay(ms), resetOnSuccess}를 만듭니다. */
+    public static JsPropertyMap<Object> retryConfig(int count, int delayMs, boolean resetOnSuccess) {
+        JsPropertyMap<Object> c = JsPropertyMap.of();
+        c.set("count", (double) count);
+        c.set("delay", (double) delayMs);
+        c.set("resetOnSuccess", resetOnSuccess);
+        return c;
+    }
+    /** RetryConfig {count, delay(function), resetOnSuccess}를 만듭니다. */
+    public static JsPropertyMap<Object> retryConfig(int count, RetryDelay delay, boolean resetOnSuccess) {
+        JsPropertyMap<Object> c = JsPropertyMap.of();
+        c.set("count", (double) count);
+        c.set("delay", delay);
+        c.set("resetOnSuccess", resetOnSuccess);
+        return c;
+    }
+    /** RepeatConfig {count, delay(ms)}를 만듭니다. */
+    public static JsPropertyMap<Object> repeatConfig(int count, int delayMs) {
+        JsPropertyMap<Object> c = JsPropertyMap.of();
+        c.set("count", (double) count);
+        c.set("delay", (double) delayMs);
+        return c;
+    }
+    /** ShareConfig {resetOnError, resetOnComplete, resetOnRefCountZero}를 만듭니다. */
+    public static JsPropertyMap<Object> shareConfig(boolean resetOnError, boolean resetOnComplete, boolean resetOnRefCountZero) {
+        JsPropertyMap<Object> c = JsPropertyMap.of();
+        c.set("resetOnError", resetOnError);
+        c.set("resetOnComplete", resetOnComplete);
+        c.set("resetOnRefCountZero", resetOnRefCountZero);
+        return c;
+    }
+    /** ShareReplayConfig {bufferSize, windowTime(ms), refCount}를 만듭니다. windowTime이 0 이하이면 무제한입니다. */
+    public static JsPropertyMap<Object> shareReplayConfig(int bufferSize, int windowTime, boolean refCount) {
+        JsPropertyMap<Object> c = JsPropertyMap.of();
+        c.set("bufferSize", (double) bufferSize);
+        c.set("windowTime", windowTime > 0 ? (double) windowTime : Double.POSITIVE_INFINITY);
+        c.set("refCount", refCount);
+        return c;
+    }
 }

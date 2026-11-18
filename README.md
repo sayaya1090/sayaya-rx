@@ -58,14 +58,20 @@ GWT 모듈에 다음 내용을 추가하세요:
 - `fromEvent()`: DOM 이벤트를 Observable로 변환
 - `interval()`: 주기적으로 값 발행
 - `fromRequest()` / `fetchJson()`: HTTP 요청(RxJS `ajax`)을 Observable로 변환
+- `race()`, `iif()`, `generate()`, `never()`, `using()`, `scheduled()`, `fromEventPattern()`, `partition()`, `connectable()`
+- `firstValueFrom()` / `lastValueFrom()`: Observable을 Promise로 변환
 
 ### Operators
-- **변환**: map, mergeMap, concatMap, switchMap
-- **필터링**: filter, take, skip, distinct, distinctUntilChanged
-- **시간**: debounceTime, throttleTime, bufferTime, windowTime
-- **조합**: zip, combineLatest, concatWith, startWith
-- **에러 처리**: catchError, retry
-- **기타**: tap, scan, finalize
+- **변환**: map, mergeMap, concatMap, switchMap, exhaustMap, expand, mergeScan, switchScan, groupBy, materialize, dematerialize
+- **필터링**: filter, take, takeLast, takeUntil, takeWhile, skip, skipLast, skipWhile, skipUntil, first, last, single, elementAt, find, findIndex, ignoreElements, distinct, distinctUntilChanged, distinctUntilKeyChanged
+- **시간**: debounceTime, throttleTime, throttle, auditTime, audit, sampleTime, sample, delay, delayWhen, timeout, timestamp, timeInterval
+- **버퍼·창**: bufferTime, bufferCount, buffer, bufferWhen, bufferToggle, windowTime, windowCount, window, windowWhen, windowToggle
+- **조합**: zip, zipWith, zipAll, combineLatest, combineLatestWith, combineLatestAll, mergeWith, raceWith, concatWith, startWith, endWith, withLatestFrom
+- **집계·조건**: count, every, isEmpty, defaultIfEmpty, throwIfEmpty, max, min, reduce, toArray, sequenceEqual
+- **에러 처리**: catchError, retry(횟수·지연·delay 함수), onErrorResumeNextWith
+- **멀티캐스트**: share(reset 설정), shareReplay(refCount·windowTime), connect
+- **스케줄링**: observeOn, subscribeOn
+- **기타**: tap, scan, finalize, repeat(횟수·지연)
 
 ### Subject
 - **Subject**: 기본 멀티캐스트 Observable

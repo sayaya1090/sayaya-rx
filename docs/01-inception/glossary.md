@@ -18,4 +18,8 @@
 | 타입 토큰 | 제네릭 타입 추론을 돕기 위한 `Class<T>` 인자. 런타임에는 쓰이지 않음. 3.0.0부터 대체 수단이 없는 곳에만 남음 | `fetchJson(url, Class<T>)`, `concatAll(Class<V>)` |
 | devMode 테스트 모듈 | 테스트용 GWT EntryPoint 모듈. 브라우저 콘솔에 검증 결과를 남김 | `dev.sayaya.OperatorTest` 등 4개 |
 | 검증 로그 | `<테스트 이름>: ✓ Assertion passed: ...` 또는 `... ✗ Assertion failed! ...` 형식의 콘솔 줄 | `Helper.assertEquals` |
+| GroupedObservable | groupBy가 방출하는 그룹. 같은 key의 값만 방출하는 Observable이며 `key`를 가짐 | `GroupedObservable<K, T>` |
+| Connectable | connect()를 호출해야 소스 구독을 시작하는 멀티캐스트 Observable | `Observable.connectable(...)`, `Connectable.connect()` |
+| 알림 값 | 값·에러·완료를 `kind`("N"/"E"/"C")로 표현한 객체. materialize/dematerialize가 사용 | `ObservableNotification<T>` |
+| 설정 객체 | RxJS 연산자에 넘기는 옵션 객체(RetryConfig, RepeatConfig, ShareConfig 등). 숫자는 JS number(double)로 넣음 | `Operator.retryConfig`, `repeatConfig`, `shareConfig`, `shareReplayConfig`, `throttleConfig` |
 | 완료 신호 | 비동기 검증이 모두 끝났음을 알리는 `window.__TEST_DONE__ = true` | `Helper.signalDoneWhenSettled` |

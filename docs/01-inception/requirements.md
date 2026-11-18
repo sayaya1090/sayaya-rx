@@ -16,6 +16,9 @@
 | FR-08 | 스트림 에러를 처리·재시도하고, 처리하지 않은 에러는 사라지지 않고 보고된다 | `catchError`, `retry`, `subscribe(Consumer)` |
 | FR-09 | Subject로 값을 여러 구독자에게 멀티캐스트하고 상태를 공유한다 | `Subject.subject`, `BehaviorSubject.behavior`, `ReplaySubject.replay*`, `AsyncSubject.async/await/json` |
 | FR-10 | 스케줄러로 작업을 지연·재귀 예약한다 | `Scheduler.asyncScheduler`, `asapScheduler`, `queueScheduler`, `animationFrameScheduler`, `AsyncScheduler.schedule` |
+| FR-11 | 조건·상태·자원·외부 이벤트 API로부터 Observable을 만든다 | `race`, `iif`, `generate`, `never`, `using`, `scheduled`, `fromEventPattern`, `partition` |
+| FR-12 | Observable을 Promise로 바꿔 async 코드와 연동한다 | `firstValueFrom`, `lastValueFrom` |
+| FR-13 | 소스를 한 번만 구독해 여러 경로로 나누거나(멀티캐스트) key별로 분할한다 | `connectable`, `connect`, `share(config)`, `shareReplay(config)`, `groupBy` |
 
 ### 유지보수 요구사항 (MR)
 

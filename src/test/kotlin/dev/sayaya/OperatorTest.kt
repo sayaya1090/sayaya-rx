@@ -86,5 +86,20 @@ internal class OperatorTest: GwtTestSpec({
                 Then("$prefix 검증이 실행되고 통과해야 한다") { logs.shouldPassAll(prefix) }
             }
         }
+
+        When("RxJS 7 추가 연산자를 사용할 때") {
+            listOf(
+                "takeLast()", "skipLast()", "skipWhile()", "skipUntil()", "elementAt()", "ignoreElements()", "single()",
+                "count()", "every()", "find()", "isEmpty()", "defaultIfEmpty()", "max()",
+                "mergeWith()", "combineLatestWith()", "raceWith()", "endWith()", "onErrorResumeNextWith()",
+                "auditTime()", "audit()", "sampleTime()", "sample()", "throttle()", "throttle(trailing)", "timeout()", "delayWhen()", "timestamp()",
+                "repeat()", "repeat(config)", "retry(config)", "share(config)", "connect()",
+                "bufferCount()", "buffer()", "bufferWhen()", "bufferToggle()", "window()", "windowToggle()", "windowWhen()",
+                "observeOn()", "subscribeOn()", "groupBy()", "materialize()", "expand()", "mergeScan()",
+                "sequenceEqual()", "combineLatestAll()", "distinctUntilKeyChanged()"
+            ).forEach { prefix ->
+                Then("$prefix 검증이 실행되고 통과해야 한다") { logs.shouldPassAll(prefix) }
+            }
+        }
     }
 })

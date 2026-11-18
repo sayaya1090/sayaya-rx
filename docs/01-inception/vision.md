@@ -34,5 +34,5 @@ sayaya-rx(`dev.sayaya:rx`, GWT 모듈 `dev.sayaya.Rx`)는 브라우저에 이미
 
 ## 성공 기준
 
-- 공개 API 하나하나가 브라우저 테스트로 검증됩니다(현재 4개 테스트 클래스, 79개 테스트 케이스).
+- 공개 API 하나하나가 브라우저 테스트로 검증됩니다(현재 4개 테스트 클래스, 137개 테스트 케이스).
 - Maven Central과 GitHub Packages에 같은 좌표(`dev.sayaya:rx:<버전>`)로 배포됩니다.

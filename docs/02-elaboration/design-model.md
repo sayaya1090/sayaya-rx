@@ -201,6 +201,23 @@ classDiagram
   }
   Observable <|-- Subject
   Observer <|.. Subject
+  class GroupedObservable~K,T~ {
+    <<native rxjs.Observable>>
+    +key K
+  }
+  class Connectable~T~ {
+    <<native rxjs.Observable>>
+    +connect() Subscription
+  }
+  class ObservableNotification~T~ {
+    <<native Object>>
+    +kind String
+    +value T
+    +error Object
+  }
+  Observable <|-- GroupedObservable
+  Observable <|-- Connectable
+  Observable ..> ObservableNotification : materialize/dematerialize
   Subject <|-- BehaviorSubject
   Subject <|-- ReplaySubject
   Subject <|-- AsyncSubject
@@ -217,6 +234,17 @@ classDiagram
 ```
 
 이 클래스들은 모두 RxJS 객체를 가리키는 선언이라 Java 쪽 상태(필드)가 없습니다. 관계도 연관이 아니라 의존과 일반화뿐입니다. 예외로 `AjaxRequest`/`AjaxResponse`는 JS `Object`를 가리키는 필드 선언(`url`, `method`, `headers`, `status`, `response` 등)만 가집니다.
+
+## RxJS 값 타입
+
+RxJS가 TypeScript 인터페이스로만 정의한 값은 Java에서 네이티브 타입으로 선언합니다.
+
+| 타입 | JS 대상 | 이유 |
+|---|---|---|
+| `GroupedObservable<K, T>`, `Connectable<T>` | `rxjs.Observable` | 실제 객체가 `Observable` 인스턴스에 속성(`key`)이나 메서드(`connect`)를 더한 것이라, `Observable`을 상속해 체인 메서드를 그대로 씀 |
+| `ObservableNotification<T>`, `Timestamp<T>`, `TimeInterval<T>` | JS `Object` | 클래스가 아닌 평범한 객체라 필드만 선언 |
+
+설정 객체(RetryConfig 등)는 별도 타입 없이 `Operator.*Config(...)`가 만드는 `JsPropertyMap`으로 넘기고, `Observable` 체인 메서드의 오버로드(`retry(count, delayMs)` 등)로 감춥니다.
 
 ## 알려진 설계 부채
 

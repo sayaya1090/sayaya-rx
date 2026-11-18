@@ -9,6 +9,7 @@ UC-07(RxJS 바인딩 추가)의 상세 절차입니다. 설계 원칙은 [설계
 | `src/main/java/dev/sayaya/Rx.gwt.xml` | 라이브러리 GWT 모듈. `User`, `org.jboss.elemento.Core` 상속, `source path="rx"` |
 | `src/main/java/dev/sayaya/rx/Observable.java` | 생성 함수(static), 구독, `pipe`, 체인 메서드 |
 | `src/main/java/dev/sayaya/rx/Operator.java` | RxJS 연산자 네이티브 선언과 람다 어댑터 오버로드 |
+| `src/main/java/dev/sayaya/rx/GroupedObservable.java` 등 | RxJS 값 타입: `GroupedObservable`, `Connectable`(네이티브 `rxjs.Observable`), `ObservableNotification`, `Timestamp`, `TimeInterval`(JS `Object`) |
 | `src/main/java/dev/sayaya/rx/subject/` | Subject 4종 |
 | `src/main/java/dev/sayaya/rx/scheduler/` | Scheduler 접근자와 스케줄러 인터페이스 |
 | `src/main/java/dev/sayaya/rx/function/` | `@JsFunction` 인터페이스 |
@@ -57,6 +58,7 @@ UC-07(RxJS 바인딩 추가)의 상세 절차입니다. 설계 원칙은 [설계
 | `TypeError: You provided an invalid object where a stream was expected` | Java 가변인자(`Object...`)가 JS 인자 여러 개로 펼쳐짐 | 배열 하나를 넘겨야 하면 `(Object) array`로 넘김 | `from(List)` |
 | 람다 구독에서 스트림 에러가 사라짐 | 빈 `error()`를 가진 익명 `Observer`로 감쌈 | JS 함수를 그대로 넘기는 private native 오버로드(`subscribeNext`) | `subscribe(Consumer)` |
 | Elemento의 `keydown`·`mousedown` 등을 넘기면 컴파일 오류(`EventType<KeyboardEvent,EventTarget> cannot be converted to EventType<KeyboardEvent,Element>`) | Elemento는 이벤트마다 두 번째 타입 인자를 `Element` 또는 `EventTarget`으로 다르게 선언함 | 바인딩 파라미터를 `EventType<E, ?>`로 받음 | `fromKeyboardEvent`, `fromMouseEvent` |
+| 설정 객체의 횟수·시간 옵션이 무시되거나 이상하게 동작 | `JsPropertyMap`에 Java `int`를 넣으면 `Integer` 객체로 박싱되어 JS number가 아님 | `(double) count`처럼 double로 넣음 | `Operator.retryConfig`, `repeatConfig`, `shareReplayConfig`, `timeout(each, fallback)` |
 | javac `unchecked` 경고 | 제네릭 캐스트 `(Observable<O>) this` | `Js.uncheckedCast`를 private helper 한 곳에 모음 | `flatten` |
 
 ## 코딩 규칙

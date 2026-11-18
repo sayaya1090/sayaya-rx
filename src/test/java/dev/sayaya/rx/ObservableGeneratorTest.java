@@ -4,6 +4,8 @@ import com.google.gwt.core.client.EntryPoint;
 import elemental2.dom.DomGlobal;
 import jsinterop.base.Js;
 import dev.sayaya.rx.Helper.GitHubUser;
+import dev.sayaya.rx.function.VoidFunction;
+import dev.sayaya.rx.subject.ReplaySubject;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static dev.sayaya.rx.Helper.*;
@@ -30,8 +32,40 @@ public class ObservableGeneratorTest implements EntryPoint {
         testForkJoin();
         testInterval();
         testAjaxHeaders();
+        testRxjs7Creators();
         // 모든 지연 assert가 eventually로 바뀌었으므로, 검사가 모두 끝나면 완료 신호를 올린다.
         signalDoneWhenSettled(0);
+    }
+    private static void testRxjs7Creators() {
+        { var r = new StringBuilder(); Observable.<Integer>never().subscribe(observer(r)); asyncScheduler().schedule(() -> r.append("silent"), 50);
+          eventually("never() should never emit or complete", "silent", r, 4000); }
+        { var r = new StringBuilder(); iif(() -> true, of(1), of(2)).subscribe(observer(r)); iif(() -> false, of(1), of(2)).subscribe(observer(r));
+          eventually("iif() should choose the source by condition at subscribe time", "1,|2,|", r, 4000); }
+        { var r = new StringBuilder(); generate(0, s -> s < 3, s -> s + 1).subscribe(observer(r));
+          eventually("generate() should emit states while the condition holds", "0,1,2,|", r, 4000); }
+        { var r = new StringBuilder(); Connectable<Integer> c = connectable(of(1, 2)); c.subscribe(observer(r)); r.append("before;"); c.connect();
+          eventually("connectable() should start emitting only after connect()", "before;1,2,|", r, 4000); }
+        { var r = new StringBuilder(); Connectable<Integer> c = connectable(of(1, 2), ReplaySubject::replay, false); c.connect(); c.subscribe(observer(r));
+          eventually("connectable() with a connector should replay to late subscribers", "1,2,|", r, 4000); }
+        { var r = new StringBuilder(); Subscription[] res = new Subscription[1];
+          using(() -> res[0] = asyncScheduler().schedule(() -> {}, 10000), s -> of(1, 2)).subscribe(observer(r));
+          r.append(res[0].closed);
+          eventually("using() should dispose the resource when the stream ends", "1,2,|true", r, 4000); }
+        { var r = new StringBuilder(); scheduled(of(1, 2), asyncScheduler()).subscribe(observer(r)); r.append("sync;");
+          eventually("scheduled() should emit on the given scheduler", "sync;1,2,|", r, 4000); }
+        { var r = new StringBuilder(); @SuppressWarnings("unchecked") VoidFunction<Integer>[] h = new VoidFunction[1];
+          fromEventPattern((VoidFunction<Integer> handler) -> h[0] = handler, handler -> h[0] = null).take(2).subscribe(observer(r));
+          h[0].apply(1); h[0].apply(2); r.append(h[0] == null);
+          eventually("fromEventPattern() should bridge add/remove handler APIs", "1,2,|true", r, 4000); }
+        { var r = new StringBuilder(); var parts = partition(of(1, 2, 3, 4), v -> v % 2 == 0);
+          parts.get(0).subscribe(observer(r)); parts.get(1).subscribe(observer(r));
+          eventually("partition() should split into matching and non-matching streams", "2,4,|1,3,|", r, 4000); }
+        { var r = new StringBuilder(); firstValueFrom(of(1, 2)).then(v -> { r.append(v).append(";"); return null; });
+          eventually("firstValueFrom() should resolve with the first value", "1;", r, 4000); }
+        { var r = new StringBuilder(); firstValueFrom(Observable.<Integer>empty(), 9).then(v -> { r.append(v).append(";"); return null; });
+          eventually("firstValueFrom() should resolve with the default value for an empty source", "9;", r, 4000); }
+        { var r = new StringBuilder(); lastValueFrom(of(1, 2)).then(v -> { r.append(v).append(";"); return null; });
+          eventually("lastValueFrom() should resolve with the last value", "2;", r, 4000); }
     }
     private static void testOf() {
         var result = new StringBuilder();

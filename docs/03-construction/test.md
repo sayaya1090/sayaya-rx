@@ -30,8 +30,8 @@ sequenceDiagram
 
 | 모듈 (`*.gwt.xml`) | EntryPoint | 페이지 | Kotlin spec | 테스트 케이스 수* |
 |---|---|---|---|---|
-| `dev.sayaya.ObservableGeneratorTest` | `ObservableGeneratorTest.java` | `observable_generator.html` | `ObservableGeneratorTest.kt` | 11 |
-| `dev.sayaya.OperatorTest` | `OperatorTest.java` | `operator.html` | `OperatorTest.kt` | 53 |
+| `dev.sayaya.ObservableGeneratorTest` | `ObservableGeneratorTest.java` | `observable_generator.html` | `ObservableGeneratorTest.kt` | 21 |
+| `dev.sayaya.OperatorTest` | `OperatorTest.java` | `operator.html` | `OperatorTest.kt` | 101 |
 | `dev.sayaya.SubjectTest` | `SubjectTest.java` | `subject.html` | `SubjectTest.kt` | 9 |
 | `dev.sayaya.SchedulerTest` | `SchedulerTest.java` | `scheduler.html` | `SchedulerTest.kt` | 6 |
 

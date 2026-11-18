@@ -3,7 +3,9 @@ package dev.sayaya.rx;
 import com.google.gwt.core.client.EntryPoint;
 import elemental2.core.JsError;
 import elemental2.dom.DomGlobal;
+import dev.sayaya.rx.subject.Subject;
 import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,6 +13,7 @@ import java.util.stream.Collectors;
 
 import static dev.sayaya.rx.Helper.*;
 import static dev.sayaya.rx.Observable.*;
+import static dev.sayaya.rx.scheduler.Scheduler.asapScheduler;
 import static dev.sayaya.rx.scheduler.Scheduler.asyncScheduler;
 import static dev.sayaya.rx.subject.BehaviorSubject.behavior;
 import static dev.sayaya.rx.subject.ReplaySubject.replayWithBuffer;
@@ -51,6 +54,7 @@ public class OperatorTest implements EntryPoint {
         testFromPromise();
         testAddedApis();
         testRemainingApis();
+        testRxjs7Operators();
 
         // 현재 켜져 있는 테스트들은 4초( debounce/throttle ) 뒤에 assert가 수행됨.
         // 약간의 여유를 두고 완료 플래그를 올린다.
@@ -423,6 +427,109 @@ public class OperatorTest implements EntryPoint {
         var result = new StringBuilder();
         Observable.<Integer>from(elemental2.promise.Promise.resolve(7)).subscribe(observer(result));
         eventually("from() with promise should emit resolved value", "7,|", result, 2300);
+    }
+    private static void testRxjs7Operators() {
+        { var r = new StringBuilder(); of(1, 2, 3, 4).takeLast(2).subscribe(observer(r)); later("takeLast() should emit the last n values", "3,4,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3, 4).skipLast(1).subscribe(observer(r)); later("skipLast() should drop the last n values", "1,2,3,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3, 1).skipWhile(v -> v < 3).subscribe(observer(r)); later("skipWhile() should skip while the predicate holds", "3,1,|", r, 0); }
+        { var r = new StringBuilder(); Subject<Integer> src = Subject.subject(); Subject<Integer> n = Subject.subject();
+          src.skipUntil(n).subscribe(observer(r)); src.next(1); n.next(0); src.next(2); src.complete();
+          later("skipUntil() should skip until the notifier emits", "2,|", r, 0); }
+        { var r = new StringBuilder(); of(10, 20, 30).elementAt(1).subscribe(observer(r)); of(10).elementAt(5, 99).subscribe(observer(r));
+          later("elementAt() should emit the value at the index or the default", "20,|99,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2).ignoreElements().subscribe(observer(r)); later("ignoreElements() should only pass completion", "|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).single(v -> v == 2).subscribe(observer(r)); of(1, 2).single().subscribe(observer(r));
+          later("single() should emit the only matching value or error", "2,|X", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).count().map(c -> c * 10).subscribe(observer(r)); of(1, 2, 3).count(v -> v > 1).map(c -> c * 10).subscribe(observer(r));
+          later("count() should count values as Integer", "30,|20,|", r, 0); }
+        { var r = new StringBuilder(); of(2, 4).every(v -> v % 2 == 0).subscribe(b -> r.append(b).append(";")); of(2, 3).every(v -> v % 2 == 0).subscribe(b -> r.append(b).append(";"));
+          later("every() should report whether all values match", "true;false;", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).find(v -> v > 1).subscribe(observer(r)); of(5, 6, 7).findIndex(v -> v == 7).map(i -> i * 10).subscribe(observer(r));
+          later("find() and findIndex() should locate the first match", "2,|20,|", r, 0); }
+        { var r = new StringBuilder(); Observable.<Integer>empty().isEmpty().subscribe(b -> r.append(b).append(";")); of(1).isEmpty().subscribe(b -> r.append(b).append(";"));
+          later("isEmpty() should report whether the source emitted", "true;false;", r, 0); }
+        { var r = new StringBuilder(); Observable.<Integer>empty().defaultIfEmpty(9).subscribe(observer(r)); Observable.<Integer>empty().throwIfEmpty().subscribe(observer(r));
+          Observable.<Integer>empty().throwIfEmpty(() -> new JsError("none")).subscribe(v -> {}, e -> r.append(":").append(e.message));
+          later("defaultIfEmpty() and throwIfEmpty() should handle empty sources", "9,|X:none", r, 0); }
+        { var r = new StringBuilder(); of(3, 7, 5).max(Integer::compare).subscribe(observer(r)); of(3, 7, 5).min(Integer::compare).subscribe(observer(r));
+          of(3.0, 7.0, 5.0).max().subscribe(v -> r.append(v.intValue()).append(";"));
+          later("max() and min() should pick extreme values", "7,|3,|7;", r, 0); }
+        { var r = new StringBuilder(); of(1).mergeWith(of(2), of(3)).subscribe(observer(r)); later("mergeWith() should merge with other sources", "1,2,3,|", r, 0); }
+        { var r = new StringBuilder(); of(1).combineLatestWith(of("a")).subscribe(l -> r.append(l.get(0)).append(l.get(1)).append(","));
+          of(1, 2).zipWith(of("a", "b")).subscribe(l -> r.append(l.get(0)).append(l.get(1)).append(","));
+          later("combineLatestWith() and zipWith() should combine into a List", "1a,1a,2b,", r, 0); }
+        { var r = new StringBuilder(); of(1).raceWith(Observable.<Integer>never()).subscribe(observer(r)); race(timer(200).map(i -> 1), of(2)).subscribe(observer(r));
+          later("raceWith() and race() should mirror the first source to emit", "1,|2,|", r, 0); }
+        { var r = new StringBuilder(); of(1).endWith(8, 9).subscribe(observer(r)); later("endWith() should append values on completion", "1,8,9,|", r, 0); }
+        { var r = new StringBuilder(); Observable.<Integer>throwError(new JsError("x")).onErrorResumeNextWith(of(5)).subscribe(observer(r));
+          later("onErrorResumeNextWith() should continue with the next source on error", "5,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).auditTime(30).subscribe(observer(r)); later("auditTime() should emit the latest value after the duration", "3,|", r, 100); }
+        { var r = new StringBuilder(); of(1, 2, 3).audit(v -> timer(30)).subscribe(observer(r)); later("audit() should emit the latest value after the duration selector", "3,|", r, 100); }
+        { var r = new StringBuilder(); Subject<Integer> s = Subject.subject(); s.sampleTime(50).subscribe(observer(r)); s.next(1); s.next(2);
+          asyncScheduler().schedule(s::complete, 120); later("sampleTime() should emit the latest value at each period", "2,|", r, 200); }
+        { var r = new StringBuilder(); Subject<Integer> s = Subject.subject(); Subject<Integer> n = Subject.subject(); s.sample(n).subscribe(observer(r));
+          s.next(1); s.next(2); n.next(0); s.next(3); s.complete(); later("sample() should emit the latest value when the notifier emits", "2,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).throttle(v -> timer(50)).subscribe(observer(r)); later("throttle() should emit the leading value", "1,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).throttle(v -> timer(50), false, true).subscribe(observer(r)); later("throttle(trailing) should emit the trailing value", "3,|", r, 150); }
+        { var r = new StringBuilder(); Observable.<Integer>never().timeout(30).subscribe(observer(r)); later("timeout() should error when no value arrives in time", "X", r, 100); }
+        { var r = new StringBuilder(); Observable.<Integer>never().timeout(30, of(7)).subscribe(observer(r)); later("timeout() should switch to the fallback when no value arrives in time", "7,|", r, 100); }
+        { var r = new StringBuilder(); of(2, 1).delayWhen(v -> timer(v * 30)).subscribe(observer(r)); later("delayWhen() should delay each value by its own duration", "1,2,|", r, 150); }
+        { var r = new StringBuilder(); of(1).timestamp().subscribe(t -> r.append(t.value).append(t.timestamp > 0).append(";"));
+          of(1).timeInterval().subscribe(t -> r.append(t.value).append(t.interval >= 0).append(";"));
+          later("timestamp() and timeInterval() should wrap values with timing", "1true;1true;", r, 0); }
+        { var r = new StringBuilder(); of(1).repeat(3).subscribe(observer(r)); later("repeat() should resubscribe count times", "1,1,1,|", r, 0); }
+        { var r = new StringBuilder(); of(1).repeat(2, 20).subscribe(observer(r)); later("repeat(config) should wait between repetitions", "1,1,|", r, 100); }
+        { var r = new StringBuilder(); int[] c = {0};
+          Observable.<Integer>defer(() -> ++c[0] < 3 ? Observable.<Integer>throwError(new JsError("e")) : of(c[0])).retry(5, 10).subscribe(observer(r));
+          later("retry(config) should retry with a delay", "3,|", r, 100); }
+        { var r = new StringBuilder(); int[] c = {0};
+          Observable.<Integer>defer(() -> ++c[0] < 3 ? Observable.<Integer>throwError(new JsError("e")) : of(c[0])).retry(5, (e, n) -> timer(n * 10)).subscribe(observer(r));
+          later("retry(config) should accept a delay function", "3,|", r, 150); }
+        { var r = new StringBuilder(); of(1).share(true, true, true).subscribe(observer(r)); of(1, 2).shareReplay(1, true).subscribe(observer(r));
+          later("share(config) and shareReplay(config) should accept reset options", "1,|1,2,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).connect(shared -> shared.filter(v -> v > 1)).subscribe(observer(r)); later("connect() should multicast through the selector", "2,3,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3, 4, 5).bufferCount(2).subscribe(l -> r.append(l.size()).append(","));
+          of(1, 2, 3).windowCount(2).mergeMap(w -> w.count()).subscribe(observer(r));
+          later("bufferCount() and windowCount() should group by count", "2,2,1,2,1,|", r, 0); }
+        { var r = new StringBuilder(); Subject<Integer> s = Subject.subject(); Subject<Integer> n = Subject.subject(); s.buffer(n).subscribe(l -> r.append(l.size()).append(","));
+          s.next(1); s.next(2); n.next(0); s.next(3); n.next(0); later("buffer() should emit buffers when the notifier emits", "2,1,", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).bufferWhen(() -> timer(1000)).subscribe(l -> r.append(l.size()).append(","));
+          later("bufferWhen() should close buffers with the closing selector", "3,", r, 0); }
+        { var r = new StringBuilder(); Subject<Integer> s = Subject.subject(); Subject<Integer> open = Subject.subject(); Subject<Integer> close = Subject.subject();
+          s.bufferToggle(open, o -> close).subscribe(l -> r.append(l.size()).append(","));
+          s.next(0); open.next(0); s.next(1); s.next(2); close.next(0); s.next(3);
+          later("bufferToggle() should buffer between opening and closing", "2,", r, 0); }
+        { var r = new StringBuilder(); Subject<Integer> s = Subject.subject(); Subject<Integer> n = Subject.subject(); s.window(n).mergeMap(w -> w.count()).subscribe(observer(r));
+          s.next(1); s.next(2); n.next(0); s.next(3); s.complete(); later("window() should split into windows at each notification", "2,1,|", r, 0); }
+        { var r = new StringBuilder(); Subject<Integer> s = Subject.subject(); Subject<Integer> open = Subject.subject(); Subject<Integer> close = Subject.subject();
+          s.windowToggle(open, o -> close).mergeMap(w -> w.count()).subscribe(observer(r));
+          open.next(0); s.next(1); s.next(2); close.next(0); s.complete(); later("windowToggle() should open and close windows", "2,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).windowWhen(() -> timer(1000)).mergeMap(w -> w.count()).subscribe(observer(r));
+          later("windowWhen() should close windows with the closing selector", "3,|", r, 0); }
+        { var r = new StringBuilder(); r.append("a;"); of(1).observeOn(asyncScheduler()).subscribe(v -> r.append("v;")); r.append("b;");
+          later("observeOn() should deliver values on the given scheduler", "a;b;v;", r, 100); }
+        { var r = new StringBuilder(); r.append("a;"); of(1).subscribeOn(asapScheduler()).subscribe(v -> r.append("v;")); r.append("b;");
+          later("subscribeOn() should subscribe on the given scheduler", "a;b;v;", r, 100); }
+        { var r = new StringBuilder();
+          of(1, 2, 3, 4).groupBy(v -> v % 2 == 0 ? "even" : "odd").mergeMap(g -> g.count().map(c -> g.key + ":" + c)).subscribe(s -> r.append(s).append(","));
+          of(1, 2, 3).groupBy(v -> "all", v -> v * 10).mergeMap(g -> g.reduce((a, b) -> a + b)).subscribe(v -> r.append(v).append(","));
+          later("groupBy() should split values into keyed groups", "odd:2,even:2,60,", r, 0); }
+        { var r = new StringBuilder(); of(1).materialize().subscribe(n -> r.append(n.kind));
+          of(ObservableNotification.next(5), ObservableNotification.<Integer>complete()).<Integer>dematerialize().subscribe(observer(r));
+          later("materialize() and dematerialize() should convert notifications", "NC5,|", r, 0); }
+        { var r = new StringBuilder(); of(1).expand(v -> v < 8 ? of(v * 2) : Observable.<Integer>empty()).subscribe(observer(r));
+          later("expand() should recursively project values", "1,2,4,8,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2, 3).mergeScan((Integer acc, Integer v) -> of(acc + v), 0).subscribe(observer(r));
+          of(1, 2, 3).switchScan((Integer acc, Integer v) -> of(acc + v), 0).subscribe(observer(r));
+          later("mergeScan() and switchScan() should accumulate through inner observables", "1,3,6,|1,3,6,|", r, 0); }
+        { var r = new StringBuilder(); of(1, 2).sequenceEqual(of(1, 2)).subscribe(b -> r.append(b).append(";"));
+          of(1, 2).sequenceEqual(of(1, 3), (a, b) -> a.equals(b)).subscribe(b -> r.append(b).append(";"));
+          later("sequenceEqual() should compare sequences", "true;false;", r, 0); }
+        { var r = new StringBuilder(); of(of(1), of(2)).combineLatestAll().subscribe(l -> r.append(l.get(0)).append(l.get(1)).append(","));
+          of(of(1, 2), of(3, 4)).zipAll().subscribe(l -> r.append(l.get(0)).append(l.get(1)).append(","));
+          later("combineLatestAll() and zipAll() should combine inner observables", "12,13,24,", r, 0); }
+        { var r = new StringBuilder(); of(JsPropertyMap.of("k", "a"), JsPropertyMap.of("k", "a"), JsPropertyMap.of("k", "b")).distinctUntilKeyChanged("k").count().subscribe(observer(r));
+          later("distinctUntilKeyChanged() should compare by property", "2,|", r, 0); }
     }
     private static void later(String name, String expected, StringBuilder r, int ms) {
         eventually(name, expected, r, Math.max(ms * 2, ms + 2000));

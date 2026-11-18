@@ -49,6 +49,22 @@ source.bufferTime(500).subscribe(list -> list.forEach(...));
 
 `Observable`의 체인 메서드 `debounceTime(int)`/`throttleTime(int, ...)`만 쓰던 코드는 바꿀 필요가 없습니다. `Operator`를 직접 `pipe`에 넘기던 코드만 `new JsNumber(ms)`를 `ms`로 바꿉니다.
 
+## 4. 추가된 API (기존 코드에 영향 없음)
+
+RxJS 7.8.2 타입 정의에서 deprecated가 아닌 시그니처만 바인딩했습니다. `thisArg`·`scheduler` 인자처럼 deprecated된 오버로드는 넣지 않았습니다.
+
+| 분류 | API |
+|---|---|
+| 생성 함수 | `race`, `iif`, `generate`, `never`(`rxjs.NEVER`), `using`, `scheduled`, `fromEventPattern`, `partition`, `connectable` |
+| Promise 연동 | `firstValueFrom`, `lastValueFrom` (값이 없을 때의 `defaultValue` 오버로드 포함) |
+| 필터·집계 | `takeLast`, `skipLast`, `skipWhile`, `skipUntil`, `elementAt`, `ignoreElements`, `single`, `count`, `every`, `find`, `findIndex`, `isEmpty`, `defaultIfEmpty`, `throwIfEmpty`, `max`, `min`, `sequenceEqual`, `distinctUntilKeyChanged` |
+| 결합 | `mergeWith`, `combineLatestWith`, `zipWith`, `raceWith`, `endWith`, `combineLatestAll`, `zipAll`, `onErrorResumeNextWith` |
+| 시간 | `auditTime`, `audit`, `sampleTime`, `sample`, `throttle`, `timeout`, `delayWhen`, `timestamp`, `timeInterval` |
+| 버퍼·창 | `bufferCount`, `buffer`, `bufferWhen`, `bufferToggle`, `windowCount`, `window`, `windowWhen`, `windowToggle` |
+| 변환·멀티캐스트 | `expand`, `mergeScan`, `switchScan`, `groupBy`, `materialize`, `dematerialize`, `connect`, `observeOn`, `subscribeOn`, `repeat` |
+| 설정 오버로드 | `retry(count, delayMs[, resetOnSuccess])`, `retry(count, (error, n) -> Observable)`, `repeat(count, delayMs)`, `share(resetOnError, resetOnComplete, resetOnRefCountZero)`, `shareReplay(bufferSize, [windowTime,] refCount)`, `timeout(each, fallback)` |
+| 새 타입 | `GroupedObservable<K, T>`, `Connectable<T>`, `ObservableNotification<T>`, `Timestamp<T>`, `TimeInterval<T>`, 함수 인터페이스 `Comparer`, `IndexedAccumulator`, `RetryDelay`, `Subscription.closed` |
+
 ## 변경 없음
 
 - 패키지 구조(순환 의존은 [AD-07](../02-elaboration/architecture.md#아키텍처-결정-요약)로 수용)

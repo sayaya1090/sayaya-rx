@@ -47,5 +47,13 @@ internal class ObservableGeneratorTest: GwtTestSpec({
         When("ajax 요청/응답 headers를 다룰 때") {
             Then("요청 헤더가 전달되고 응답 헤더를 읽을 수 있어야 한다") { logs.shouldPassAll("headers(ajax)") }
         }
+        When("RxJS 7 생성 함수를 사용할 때") {
+            listOf(
+                "never()", "iif()", "generate()", "connectable()", "using()", "scheduled()",
+                "fromEventPattern()", "partition()", "firstValueFrom()", "lastValueFrom()"
+            ).forEach { prefix ->
+                Then("$prefix 검증이 실행되고 통과해야 한다") { logs.shouldPassAll(prefix) }
+            }
+        }
     }
 })
