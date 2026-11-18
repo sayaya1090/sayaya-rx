@@ -56,7 +56,7 @@ sequenceDiagram
   S-->>-Dev: Observable~V~
 ```
 
-`filter`, `take`, `skip`, `debounceTime` 등 체인 메서드는 모두 이 형태입니다. `debounceTime(int)`/`throttleTime(int)`만 `new JsNumber(ms)`로 바꿔 넘깁니다(아래 "알려진 설계 부채" 참고).
+`filter`, `take`, `skip`, `debounceTime`, `throttleTime` 등 체인 메서드는 모두 이 형태입니다. 3.0.0부터 시간 인자는 모두 `int`로 RxJS에 그대로 넘깁니다.
 
 ### DS-03 `concatAll(Class)` — 고차 Observable 평탄화 (UC-03)
 
@@ -159,7 +159,7 @@ classDiagram
     +map(ProjectWithIndex~T,R~ func)$ OperatorFunction~T,R~
     +map(Function~T,R~ func)$ OperatorFunction~T,R~
     +concatAll()$ OperatorFunction~O,T~
-    +throttleTime(JsNumber due, AsyncScheduler~V~ scheduler)$ OperatorFunction~V,V~
+    +throttleTime(int due, AsyncScheduler~?~ scheduler)$ OperatorFunction~V,V~
   }
   class OperatorFunction~T,R~ {
     <<JsFunction>>
@@ -185,7 +185,7 @@ classDiagram
     +json(Promise~Response~ promise)$ AsyncSubject~T~
   }
   class Scheduler {
-    +asyncScheduler()$ AsyncScheduler~Void~
+    +asyncScheduler()$ AsyncScheduler~T~
     +asapScheduler()$ TaskScheduler
     +queueScheduler()$ TaskScheduler
   }
@@ -220,12 +220,12 @@ classDiagram
 
 ## 알려진 설계 부채
 
-리팩토링 분석(2026-11)에서 찾았지만 공개 API가 바뀌기 때문에 아직 반영하지 않은 항목입니다. 메이저 버전 반복에서 검토합니다.
+리팩토링 분석(2026-11)에서 찾은 항목과 처리 상태입니다. 3.0.0에서 호환성을 깨는 변경으로 해소한 항목의 사용자 영향은 [3.0 마이그레이션](../04-transition/migration-3.0.md)에 있습니다.
 
-| 항목 | 위치 | 영향 |
+| 항목 | 위치 | 상태 |
 |---|---|---|
-| 숫자 파라미터 타입 혼재: `Operator.debounceTime/throttleTime`만 `JsNumber`, 나머지는 `int` | `Operator.java` | `Operator` 시그니처 변경은 호환성을 깸 |
-| `throttleTime`의 `AsyncScheduler<V>`가 요소 타입에 묶임 | `Operator.java`, `Observable.java` | `AsyncScheduler<?>`로 넓히는 것은 비파괴 |
-| 런타임에 쓰이지 않는 `Class<T>` 타입 토큰 | `Subject`, `ReplaySubject`, `AsyncSubject`, `Scheduler`, `concatAll` 등 | 제거하면 호환성을 깸 |
-| 결합 결과 타입 혼재: `zip/toArray/pairwise`는 `List`, `combineLatest/withLatestFrom/forkJoin`은 `Object[]` | `Observable.java` | 호환성을 깸 |
+| 숫자 파라미터 타입 혼재: `Operator.debounceTime/throttleTime`만 `JsNumber`, 나머지는 `int` | `Operator.java` | 3.0.0에서 해소: 모두 `int` |
+| `throttleTime`의 `AsyncScheduler<V>`가 요소 타입에 묶임 | `Operator.java`, `Observable.java` | 3.0.0에서 해소: `AsyncScheduler<?>` |
+| 런타임에 쓰이지 않는 `Class<T>` 타입 토큰 | `Subject`, `ReplaySubject`, `AsyncSubject`, `Scheduler` | 3.0.0에서 해소: `Class` 오버로드 제거, 무인자 제네릭 팩토리만 남김. `fromRequest`/`fetchJson`/`concatAll` 등의 `Class` 인자는 체인 중간에서 타입을 추론시키는 유일한 수단이라 유지 |
+| 결합 결과 타입 혼재: `zip/toArray/pairwise`는 `List`, `combineLatest/withLatestFrom/forkJoin`은 `Object[]`, `bufferTime`은 `T[]` | `Observable.java` | 3.0.0에서 해소: 모두 `List` |
 | 패키지 순환 의존 `rx`↔`scheduler`, `rx`↔`function` | [아키텍처](architecture.md#패키지-다이어그램) | 결정 AD-07로 수용(공개 시그니처가 만드는 순환이라 비파괴 해소 불가). 같은 GWT 모듈 안이라 빌드 문제는 없음 |

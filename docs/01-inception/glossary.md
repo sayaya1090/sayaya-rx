@@ -15,7 +15,7 @@
 | 네이티브 타입 | JS에 이미 있는 객체를 가리키는 Java 선언. Java 쪽에서 구현하지 않음 | `@JsType(isNative = true)` |
 | 오버레이 | 네이티브 타입에 붙이는 Java 구현 메서드. 호출 지점에 인라인되어 JS 객체에 메서드를 추가하지 않음 | `@JsOverlay` |
 | JS 함수 인터페이스 | Java 람다를 JS 함수로 넘기기 위한 함수형 인터페이스 | `@JsFunction` (`Callback`, `UnaryFunction` 등) |
-| 타입 토큰 | 제네릭 타입 추론을 돕기 위한 `Class<T>` 인자. 런타임에는 쓰이지 않음 | `subject(Integer.class)`, `concatAll(Class<V>)` |
+| 타입 토큰 | 제네릭 타입 추론을 돕기 위한 `Class<T>` 인자. 런타임에는 쓰이지 않음. 3.0.0부터 대체 수단이 없는 곳에만 남음 | `fetchJson(url, Class<T>)`, `concatAll(Class<V>)` |
 | devMode 테스트 모듈 | 테스트용 GWT EntryPoint 모듈. 브라우저 콘솔에 검증 결과를 남김 | `dev.sayaya.OperatorTest` 등 4개 |
 | 검증 로그 | `<테스트 이름>: ✓ Assertion passed: ...` 또는 `... ✗ Assertion failed! ...` 형식의 콘솔 줄 | `Helper.assertEquals` |
 | 완료 신호 | 비동기 검증이 모두 끝났음을 알리는 `window.__TEST_DONE__ = true` | `Helper.signalDoneWhenSettled` |

@@ -16,10 +16,6 @@ public class AsyncSubject<T> extends Subject<T> {
     @JsConstructor
     protected AsyncSubject(){}
     @JsOverlay
-    public static <T> AsyncSubject<T> async(Class<T> clazz) {
-        return new AsyncSubject<>();
-    }
-    @JsOverlay
     public static <T> AsyncSubject<T> async() {
         return new AsyncSubject<>();
     }

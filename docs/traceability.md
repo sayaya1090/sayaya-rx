@@ -29,7 +29,7 @@
 | FR-09 | UC-05 | `subject`, `behavior`, `replayWithBuffer`, `async` | `Subject.subject`, `BehaviorSubject.behavior`, `ReplaySubject.replay*`, `AsyncSubject.async` | SU: `Subject`, `BehaviorSubject`, `ReplaySubject`, `AsyncSubject` / OP: `subjectFactories()` |
 | FR-09 | UC-05 | `getValue`, `asObservable`, `await`, `json`, `replayWithBufferAndWindowTime` | `BehaviorSubject.getValue`, `Subject.asObservable`, `AsyncSubject.await/json`, `ReplaySubject.replayWithBufferAndWindowTime` | SU: `getValue()`, `asObservable()`, `await()`, `json()`, `replayWithBufferAndWindowTime()` |
 | FR-10 | UC-06 | `asyncScheduler`, `asapScheduler`, `queueScheduler`, `schedule` | `Scheduler.*`, `AsyncScheduler.schedule(...)`, `TaskScheduler.schedule` | SC: `asyncScheduler()`, `asapScheduler()`, `queueScheduler()`, `All schedulers`, `asyncScheduler.schedule(state)` / OP: `schedule() returns` |
-| FR-10 | UC-06 | `animationFrameScheduler` | `Scheduler.animationFrameScheduler(Class)` | SC: `animationFrameScheduler()` |
+| FR-10 | UC-06 | `animationFrameScheduler` | `Scheduler.animationFrameScheduler()` | SC: `animationFrameScheduler()` |
 
 ## 유지보수·비기능 요구사항
 

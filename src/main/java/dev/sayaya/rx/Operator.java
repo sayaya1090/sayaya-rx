@@ -4,7 +4,6 @@ import dev.sayaya.rx.function.*;
 import dev.sayaya.rx.scheduler.AsyncScheduler;
 import elemental2.core.JsArray;
 import elemental2.core.JsError;
-import elemental2.core.JsNumber;
 import jsinterop.annotations.JsMethod;
 
 import java.util.function.Function;
@@ -91,11 +90,11 @@ public class Operator {
      * @see <a href="https://rxjs.dev/api/index/function/bufferTime">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="bufferTime")
-    public static native <T> OperatorFunction<T, T[]> bufferTime(int bufferTimeSpan);
+    public static native <T> OperatorFunction<T, JsArray<T>> bufferTime(int bufferTimeSpan);
     @JsMethod(namespace="rxjs", name="bufferTime")
-    public static native <T> OperatorFunction<T, T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval);
+    public static native <T> OperatorFunction<T, JsArray<T>> bufferTime(int bufferTimeSpan, int bufferCreationInterval);
     @JsMethod(namespace="rxjs", name="bufferTime")
-    public static native <T> OperatorFunction<T, T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize);
+    public static native <T> OperatorFunction<T, JsArray<T>> bufferTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize);
     /**
      * 소스 Observable 값을 시간에 따라 주기적으로 중첩된 Observable로 분기합니다.
      * @see <a href="https://rxjs.dev/api/index/function/windowTime">Guide</a>
@@ -160,15 +159,15 @@ public class Operator {
      * @see <a href="https://rxjs.dev/api/index/function/debounceTime">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="debounceTime")
-    public static native <V> OperatorFunction<V, V> debounceTime(JsNumber due);
+    public static native <V> OperatorFunction<V, V> debounceTime(int due);
     /**
      * 특정 시간 동안 다른 소스에서 알림을 방출하지 않은 후에만 소스 Observable에서 알림을 방출합니다.
      * @see <a href="https://rxjs.dev/api/index/function/throttleTime">Guide</a>
      */
     @JsMethod(namespace="rxjs", name="throttleTime")
-    public static native <V> OperatorFunction<V, V> throttleTime(JsNumber due, AsyncScheduler<V> scheduler);
+    public static native <V> OperatorFunction<V, V> throttleTime(int due, AsyncScheduler<?> scheduler);
     @JsMethod(namespace="rxjs", name="throttleTime")
-    public static native <V> OperatorFunction<V, V> throttleTime(JsNumber due, AsyncScheduler<V> scheduler, jsinterop.base.JsPropertyMap<Object> config);
+    public static native <V> OperatorFunction<V, V> throttleTime(int due, AsyncScheduler<?> scheduler, jsinterop.base.JsPropertyMap<Object> config);
     /**
      * throttleTime의 설정 객체({leading, trailing})를 만듭니다.
      */

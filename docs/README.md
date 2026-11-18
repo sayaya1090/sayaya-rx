@@ -22,6 +22,7 @@
 | 컨스트럭션 | 구현 | 구현 가이드(바인딩 추가 절차) | [03-construction/implementation-guide.md](03-construction/implementation-guide.md) |
 | 컨스트럭션 | 테스트 | 테스트 설계 | [03-construction/test.md](03-construction/test.md) |
 | 트랜지션 | 배포 | 릴리스·배포 절차 | [04-transition/release.md](04-transition/release.md) |
+| 트랜지션 | 배포 | 3.0 마이그레이션 가이드(호환성 파괴 변경) | [04-transition/migration-3.0.md](04-transition/migration-3.0.md) |
 | 전 단계 | 형상·변경 관리 | 추적성 표 | [traceability.md](traceability.md) |
 
 쓰지 않는 산출물: 데이터 모델(영속 데이터 없음), 사용자 인터페이스 명세(UI 없음).

@@ -90,7 +90,7 @@ numbers
     .subscribe(System.out::println);
 
 // Subject 사용
-Subject<String> subject = Subject.subject(String.class);
+Subject<String> subject = Subject.subject();
 subject.subscribe(value -> System.out.println("Observer 1: " + value));
 subject.subscribe(value -> System.out.println("Observer 2: " + value));
 subject.next("Hello");

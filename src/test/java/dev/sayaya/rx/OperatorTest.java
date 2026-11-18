@@ -14,6 +14,7 @@ import static dev.sayaya.rx.Observable.*;
 import static dev.sayaya.rx.scheduler.Scheduler.asyncScheduler;
 import static dev.sayaya.rx.subject.BehaviorSubject.behavior;
 import static dev.sayaya.rx.subject.ReplaySubject.replayWithBuffer;
+import dev.sayaya.rx.subject.ReplaySubject;
 
 public class OperatorTest implements EntryPoint {
     @Override
@@ -154,7 +155,7 @@ public class OperatorTest implements EntryPoint {
         var result = new StringBuilder();
         var obs1 = timer(0, 100).map(i->(Object) String.valueOf((char) ('a' + i))).take(5);
         var obs2 = timer(0, 60).take(4);
-        obs1.combineLatest(obs2).map(arr-> arr[0].toString() + arr[1]).subscribe(s->result.append(s).append(","));
+        obs1.combineLatest(obs2).map(arr-> arr.get(0).toString() + arr.get(1)).subscribe(s->result.append(s).append(","));
         asyncScheduler().schedule(()->{
             assertEquals("combineLatest() should combine latest values from each observable", "a0,a1,b1,b2,b3,c3,d3,e3,", result.toString());
         }, 2000);
@@ -164,7 +165,7 @@ public class OperatorTest implements EntryPoint {
         var result = new StringBuilder();
         var obs1 = timer(0, 200).map(i->(Object) String.valueOf((char) ('a' + i))).take(6);
         obs1.bufferTime(500).subscribe(arr->{
-            result.append("[").append(Arrays.stream(arr).map(Object::toString).collect(Collectors.joining(","))).append("],");
+            result.append("[").append(arr.stream().map(Object::toString).collect(Collectors.joining(","))).append("],");
         });
         asyncScheduler().schedule(()->{
             // 정확한 값 대신 버퍼링이 동작했는지만 확인
@@ -280,7 +281,7 @@ public class OperatorTest implements EntryPoint {
 
     private static void testRetry() {
         var result = new StringBuilder();
-        var obs = replayWithBuffer(Integer.class, 10);
+        ReplaySubject<Integer> obs = replayWithBuffer(10);
         obs.retry(2).subscribe(observer(result));
         obs.next(1);
         obs.next(2);
@@ -297,9 +298,9 @@ public class OperatorTest implements EntryPoint {
 
     private static void testConcatAll() {
         var result = new StringBuilder();
-        var obs1 = replayWithBuffer(Integer.class, 10);
-        var obs2 = replayWithBuffer(Integer.class, 10);
-        var obs3 = replayWithBuffer(Integer.class, 10);
+        ReplaySubject<Integer> obs1 = replayWithBuffer(10);
+        ReplaySubject<Integer> obs2 = replayWithBuffer(10);
+        ReplaySubject<Integer> obs3 = replayWithBuffer(10);
         var outer = behavior(obs1);
         outer.concatAll(Integer.class).subscribe(x->result.append(x).append(","));
         obs1.next(1);
@@ -318,8 +319,8 @@ public class OperatorTest implements EntryPoint {
 
     private static void testSwitchAll() {
         var result = new StringBuilder();
-        var obs1 = replayWithBuffer(Integer.class, 10);
-        var obs2 = replayWithBuffer(Integer.class, 10);
+        ReplaySubject<Integer> obs1 = replayWithBuffer(10);
+        ReplaySubject<Integer> obs2 = replayWithBuffer(10);
         var outer = behavior(obs1);
         outer.switchAll(Integer.class).subscribe(x->result.append(x).append(","));
         obs1.next(1);
@@ -337,8 +338,8 @@ public class OperatorTest implements EntryPoint {
 
     private static void testMergeAll() {
         var result = new StringBuilder();
-        var obs1 = replayWithBuffer(Integer.class, 10);
-        var obs2 = replayWithBuffer(Integer.class, 10);
+        ReplaySubject<Integer> obs1 = replayWithBuffer(10);
+        ReplaySubject<Integer> obs2 = replayWithBuffer(10);
         var outer = behavior(obs1);
         outer.mergeAll(Integer.class).subscribe(x->result.append(x).append(","));
         obs1.next(1);
@@ -356,9 +357,9 @@ public class OperatorTest implements EntryPoint {
 
     private static void testExhaustAll() {
         var result = new StringBuilder();
-        var obs1 = replayWithBuffer(Integer.class, 10);
-        var obs2 = replayWithBuffer(Integer.class, 10);
-        var obs3 = replayWithBuffer(Integer.class, 10);
+        ReplaySubject<Integer> obs1 = replayWithBuffer(10);
+        ReplaySubject<Integer> obs2 = replayWithBuffer(10);
+        ReplaySubject<Integer> obs3 = replayWithBuffer(10);
         var outer = behavior(obs1);
         outer.exhaustAll(Integer.class).subscribe(x->result.append(x).append(","));
         obs1.next(1);
@@ -463,7 +464,7 @@ public class OperatorTest implements EntryPoint {
           later("shareReplay() should replay the last value without resubscribing", "A1,A2,A3,B3,count=1", r, 0); }
         { var r = new StringBuilder();
           var latest = behavior("x");
-          of(1, 2).withLatestFrom(latest).subscribe(arr -> r.append(arr[0]).append(arr[1]).append(","));
+          of(1, 2).withLatestFrom(latest).subscribe(arr -> r.append(arr.get(0)).append(arr.get(1)).append(","));
           later("withLatestFrom() should combine with the latest value of other", "1x,2x,", r, 0); }
         { var r = new StringBuilder();
           timer(0, 100).take(4).exhaustMap(i -> timer(150).map(x -> i)).subscribe(observer(r));
@@ -519,7 +520,7 @@ public class OperatorTest implements EntryPoint {
           of(1, 2, 3).scan((String acc, Integer v) -> acc + v, "s").subscribe(v -> r.append(v).append(";"));
           later("scanWithSeed() should accumulate from the seed", "s1;s12;s123;", r, 0); }
         { var r = new StringBuilder();
-          of(1, 2, 3).throttleTime(100, asyncScheduler(Integer.class)).subscribe(observer(r));
+          of(1, 2, 3).throttleTime(100, asyncScheduler()).subscribe(observer(r));
           later("throttleTimeScheduler() should accept a scheduler", "1,|", r, 300); }
         { var r = new StringBuilder();
           of(1, 2, 3).throttleTime(100, false, true).subscribe(observer(r));

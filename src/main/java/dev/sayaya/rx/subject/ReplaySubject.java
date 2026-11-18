@@ -11,18 +11,6 @@ import jsinterop.annotations.JsType;
 @JsType(isNative = true, namespace="rxjs", name="ReplaySubject")
 public class ReplaySubject<T> extends Subject<T> {
     @JsOverlay
-    public static <T> ReplaySubject<T> replay(Class<T> clazz) {
-        return new ReplaySubject<>();
-    }
-    @JsOverlay
-    public static <T> ReplaySubject<T> replayWithBuffer(Class<T> clazz, int buffer) {
-        return new ReplaySubject<>(buffer);
-    }
-    @JsOverlay
-    public static <T> ReplaySubject<T> replayWithBufferAndWindowTime(Class<T> clazz, int buffer, int windowTime) {
-        return new ReplaySubject<>(buffer, windowTime);
-    }
-    @JsOverlay
     public static <T> ReplaySubject<T> replay() {
         return new ReplaySubject<>();
     }

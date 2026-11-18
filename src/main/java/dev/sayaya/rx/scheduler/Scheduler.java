@@ -9,10 +9,7 @@ public class Scheduler {
      */
     @JsProperty(namespace = "rxjs", name="asyncScheduler")
     public static native <T> AsyncScheduler<T> async();
-    public static <T> AsyncScheduler<T> asyncScheduler(Class<T> clazz) {
-        return async();
-    }
-    public static AsyncScheduler<Void> asyncScheduler() {
+    public static <T> AsyncScheduler<T> asyncScheduler() {
         return async();
     }
     /**
@@ -30,7 +27,7 @@ public class Scheduler {
 
     @JsProperty(namespace = "rxjs", name="animationFrameScheduler")
     private static native <T> AsyncScheduler<T> animationFrame();
-    public static <T> AsyncScheduler<T> animationFrameScheduler(Class<T> clazz) {
+    public static <T> AsyncScheduler<T> animationFrameScheduler() {
         return animationFrame();
     }
 }

@@ -38,7 +38,7 @@ public class SubjectTest implements EntryPoint {
     private static void testSubject() {
         var result1 = new StringBuilder();
         var result2 = new StringBuilder();
-        var subject = subject(Integer.class);
+        Subject<Integer> subject = subject();
         subject.subscribe(v-> result1.append("observer A:").append(v).append("\n"));
         subject.subscribe(v-> result2.append("observer B:").append(v).append("\n"));
         var observable = of(1, 2, 3);
@@ -58,7 +58,7 @@ public class SubjectTest implements EntryPoint {
     private static void testReplaySubject() {
         var result1 = new StringBuilder();
         var result2 = new StringBuilder();
-        var subject = replayWithBuffer(Integer.class, 3);
+        ReplaySubject<Integer> subject = replayWithBuffer(3);
         subject.subscribe(v-> result1.append("observer A:").append(v).append("\n"));
         subject.next(1);
         subject.next(2);
@@ -73,7 +73,7 @@ public class SubjectTest implements EntryPoint {
     private static void testAsyncSubject() {
         var result1 = new StringBuilder();
         var result2 = new StringBuilder();
-        var subject = async(Integer.class);
+        AsyncSubject<Integer> subject = async();
         subject.subscribe(v-> result1.append("observer A:").append(v).append("\n"));
         subject.next(1);
         subject.next(2);

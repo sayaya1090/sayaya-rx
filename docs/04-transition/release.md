@@ -47,5 +47,5 @@ sequenceDiagram
 
 ## 주의
 
-- GitHub Release 본문은 워크플로의 **고정 템플릿**입니다. 호환성을 깨는 API 변경이 있으면 Release 노트에 변경 목록을 직접 보강합니다.
+- GitHub Release 본문은 워크플로의 **고정 템플릿**입니다. 호환성을 깨는 API 변경이 있으면 Release 노트에 변경 목록을 직접 보강합니다. 3.0.0은 [3.0 마이그레이션](migration-3.0.md)의 내용을 붙입니다.
 - CI는 Gradle wrapper가 아니라 러너의 `gradle`을 씁니다. wrapper 파일은 현재 저장소에 커밋되어 있지 않습니다.

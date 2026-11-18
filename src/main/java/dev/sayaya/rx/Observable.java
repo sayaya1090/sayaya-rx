@@ -65,11 +65,14 @@ public class Observable<T> {
     @JsMethod(namespace="rxjs", name="merge")
     public static native <T> Observable<T> merge(Observable<T>... observables);
     /**
-     * ObservableInput의 배열을 인자로 받아, 동일한 순서로 값을 담은 배열을 발행하는 Observable을 반환합니다.
+     * 모든 입력 Observable이 완료되면 각자의 마지막 값을 입력 순서대로 담은 List를 한 번 방출합니다.
      * @see <a href="https://rxjs.dev/api/index/function/forkJoin">Guide</a>
      */
+    @JsOverlay public static Observable<List<Object>> forkJoin(Observable<?>... observables) {
+        return forkJoinArray(observables).map(JsArrayLike::asList);
+    }
     @JsMethod(namespace="rxjs", name="forkJoin")
-    public static native Observable<Object[]> forkJoin(Observable<?>... observables);
+    private static native Observable<elemental2.core.JsArray<Object>> forkJoinArray(Observable<?>... observables);
 
     /**
      * 지정된 이벤트 대상에서 발생하는 특정 유형의 이벤트를 방출하는 Observable을 생성합니다.
@@ -213,17 +216,17 @@ public class Observable<T> {
     @JsOverlay public final Observable<List<T>> zip(Observable<? extends T> observable) {
         return Operator.zip(this, observable).map(JsArrayLike::asList);
     }
-    @JsOverlay public final Observable<Object[]> combineLatest(Observable<? > observable) {
-        return Operator.combineLatest(this, observable).map(Js::uncheckedCast);
+    @JsOverlay public final Observable<List<Object>> combineLatest(Observable<?> observable) {
+        return Operator.combineLatest(this, observable).map(arr -> Js.<elemental2.core.JsArray<Object>>uncheckedCast(arr).asList());
     }
-    @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan) {
-        return pipe(Operator.bufferTime(bufferTimeSpan));
+    @JsOverlay public final Observable<List<T>> bufferTime(int bufferTimeSpan) {
+        return pipe(Operator.<T>bufferTime(bufferTimeSpan)).map(JsArrayLike::asList);
     }
-    @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval) {
-        return pipe(Operator.bufferTime(bufferTimeSpan, bufferCreationInterval));
+    @JsOverlay public final Observable<List<T>> bufferTime(int bufferTimeSpan, int bufferCreationInterval) {
+        return pipe(Operator.<T>bufferTime(bufferTimeSpan, bufferCreationInterval)).map(JsArrayLike::asList);
     }
-    @JsOverlay public final Observable<T[]> bufferTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize) {
-        return pipe(Operator.bufferTime(bufferTimeSpan, bufferCreationInterval, maxBufferSize));
+    @JsOverlay public final Observable<List<T>> bufferTime(int bufferTimeSpan, int bufferCreationInterval, int maxBufferSize) {
+        return pipe(Operator.<T>bufferTime(bufferTimeSpan, bufferCreationInterval, maxBufferSize)).map(JsArrayLike::asList);
     }
     @JsOverlay public final Observable<Observable<T>> windowTime(int bufferTimeSpan) {
         return pipe(Operator.windowTime(bufferTimeSpan));
@@ -244,17 +247,17 @@ public class Observable<T> {
      */
     @JsOverlay public final <A> Observable<A> scan(BiFunction<A, T, A> func, A seed) { return pipe(Operator.<T, A>scan((a, v) -> func.apply(a, v), seed)); }
     @JsOverlay public final Observable<T> debounce(Function<T, Observable<?>> durationSelector) { return pipe(Operator.debounce(durationSelector::apply)); }
-    @JsOverlay public final Observable<T> debounceTime(int milliseconds) { return pipe(Operator.debounceTime(new JsNumber(milliseconds))); }
-    @JsOverlay public final Observable<T> throttleTime(int milliseconds) { return pipe(Operator.throttleTime(new JsNumber(milliseconds), Scheduler.async())); }
+    @JsOverlay public final Observable<T> debounceTime(int milliseconds) { return pipe(Operator.debounceTime(milliseconds)); }
+    @JsOverlay public final Observable<T> throttleTime(int milliseconds) { return pipe(Operator.throttleTime(milliseconds, Scheduler.async())); }
     /**
      * 지정한 스케줄러로 throttleTime을 적용합니다.
      */
-    @JsOverlay public final Observable<T> throttleTime(int milliseconds, dev.sayaya.rx.scheduler.AsyncScheduler<T> scheduler) { return pipe(Operator.throttleTime(new JsNumber(milliseconds), scheduler)); }
+    @JsOverlay public final Observable<T> throttleTime(int milliseconds, dev.sayaya.rx.scheduler.AsyncScheduler<?> scheduler) { return pipe(Operator.throttleTime(milliseconds, scheduler)); }
     /**
      * leading/trailing 설정으로 throttleTime을 적용합니다. (RxJS ThrottleConfig)
      */
     @JsOverlay public final Observable<T> throttleTime(int milliseconds, boolean leading, boolean trailing) {
-        return pipe(Operator.throttleTime(new JsNumber(milliseconds), Scheduler.async(), Operator.throttleConfig(leading, trailing)));
+        return pipe(Operator.throttleTime(milliseconds, Scheduler.async(), Operator.throttleConfig(leading, trailing)));
     }
     @JsOverlay public final Observable<T> distinct() { return pipe(Operator.distinct()); }
     @JsOverlay public final Observable<T> distinct(Function<T, ?> selector) { return pipe(Operator.distinct(selector::apply)); }
@@ -283,8 +286,8 @@ public class Observable<T> {
     @JsOverlay public final Observable<T> delay(int milliseconds) { return pipe(Operator.delay(milliseconds)); }
     @JsOverlay public final Observable<T> share() { return pipe(Operator.share()); }
     @JsOverlay public final Observable<T> shareReplay(int bufferSize) { return pipe(Operator.shareReplay(bufferSize)); }
-    @JsOverlay public final Observable<Object[]> withLatestFrom(Observable<?> other) {
-        return pipe(Operator.<T>withLatestFrom(other)).map(Js::<Object[]>uncheckedCast);
+    @JsOverlay public final Observable<List<Object>> withLatestFrom(Observable<?> other) {
+        return pipe(Operator.<T>withLatestFrom(other)).map(JsArrayLike::asList);
     }
     @JsOverlay public final <V> Observable<V> exhaustMap(Function<? super T, ? extends Observable<? extends V>> func) { return pipe(Operator.exhaustMap(func)); }
     @JsOverlay public final Observable<List<T>> toArray() {

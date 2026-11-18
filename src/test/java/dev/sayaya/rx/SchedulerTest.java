@@ -26,7 +26,7 @@ public class SchedulerTest implements EntryPoint {
 
     private static void testAnimationFrameScheduler() {
         var result = new StringBuilder("Start;");
-        animationFrameScheduler(Void.class).schedule(() -> result.append("Frame;"), 0);
+        animationFrameScheduler().schedule(() -> result.append("Frame;"), 0);
         result.append("Sync;");
         eventually("animationFrameScheduler() should run work asynchronously on an animation frame", "Start;Sync;Frame;", result, 3000);
     }
@@ -104,7 +104,7 @@ public class SchedulerTest implements EntryPoint {
     }
     private static void testScheduleWithState() {
         var result = new StringBuilder();
-        dev.sayaya.rx.scheduler.AsyncScheduler<Integer> sc = asyncScheduler(Integer.class);
+        dev.sayaya.rx.scheduler.AsyncScheduler<Integer> sc = asyncScheduler();
         sc.schedule((Integer n, java.util.function.Consumer<Integer> reschedule) -> {
             result.append(n).append(";");
             if (n < 3) reschedule.accept(n + 1);
