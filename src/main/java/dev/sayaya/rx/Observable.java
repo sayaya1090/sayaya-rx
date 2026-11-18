@@ -6,7 +6,6 @@ import dev.sayaya.rx.function.Factory;
 import dev.sayaya.rx.function.OperatorFunction;
 import dev.sayaya.rx.function.VoidFunction;
 import dev.sayaya.rx.scheduler.Scheduler;
-import elemental2.core.JsArray;
 import elemental2.core.JsError;
 import elemental2.core.JsNumber;
 import elemental2.dom.*;
@@ -43,10 +42,10 @@ public class Observable<T> {
     @JsMethod(namespace="rxjs", name="range")
     private static native Observable<JsNumber> range(JsNumber start, JsNumber count);
     @JsOverlay public static Observable<Integer> range(int start) {
-        return range(new JsNumber(start),null).map(i->(int)i.valueOf());
+        return toInt(range(new JsNumber(start), null));
     }
     @JsOverlay public static Observable<Integer> range(int start, Integer count) {
-        return range(new JsNumber(start), count!=null? new JsNumber(count): null).map(i->(int)i.valueOf());
+        return toInt(range(new JsNumber(start), count!=null? new JsNumber(count): null));
     }
 
     /**
@@ -91,15 +90,15 @@ public class Observable<T> {
     @JsMethod(namespace="rxjs", name="interval")
     private static native Observable<JsNumber> interval(JsNumber period);
     @JsOverlay public static Observable<Integer> interval(int period) {
-        return interval(new JsNumber(period)).map(i->(int)i.valueOf());
+        return toInt(interval(new JsNumber(period)));
     }
     @JsOverlay public static Observable<Integer> interval() {
-        return interval(new JsNumber(0)).map(i->(int)i.valueOf());
+        return interval(0);
     }
     @JsMethod(namespace="rxjs", name="timer")
     private static native Observable<JsNumber> timer(JsNumber start, JsNumber delay);
     @JsOverlay public static Observable<Integer> timer(int start, int delay) {
-        return timer(new JsNumber(start), new JsNumber(delay)).map(i->(int)i.valueOf());
+        return toInt(timer(new JsNumber(start), new JsNumber(delay)));
     }
     @JsMethod(namespace="rxjs", name="timer")
     private static native Observable<JsNumber> timer(JsNumber due);
@@ -108,7 +107,11 @@ public class Observable<T> {
      * @see <a href="https://rxjs.dev/api/index/function/timer">Guide</a>
      */
     @JsOverlay public static Observable<Integer> timer(int due) {
-        return timer(new JsNumber(due)).map(i->(int)i.valueOf());
+        return toInt(timer(new JsNumber(due)));
+    }
+    /** RxJS가 방출하는 JS number를 Java int로 바꿉니다. */
+    @JsOverlay private static Observable<Integer> toInt(Observable<JsNumber> numbers) {
+        return numbers.map(i->(int)i.valueOf());
     }
     /**
      * 입력 Observable들을 순서대로 구독해, 앞의 것이 완료되면 다음 것을 이어 방출합니다.
@@ -261,21 +264,13 @@ public class Observable<T> {
     @JsOverlay @SafeVarargs public final Observable<T> startWith(T... values) { return pipe(Operator.startWith(values)); }
     @JsOverlay public final <E> Observable<E> catchError(BiFunction<JsError, Observable<T>, Observable<? extends E>> func) { return pipe(Operator.<T, E>catchError((e, s) -> func.apply(e, s))); }
     @JsOverlay public final <E> Observable<E> catchError(Function<JsError, Observable<? extends E>> func) { return pipe(Operator.<T, E>catchError((e, s) -> func.apply(e))); }
-    @JsOverlay public final <V, O extends Observable<V>> Observable<V> concatAll(Class<V> clazz) {
-        Observable<O> cast = (Observable<O>) this;
-        return cast.pipe(Operator.concatAll());
-    }
-    @JsOverlay public final <V, O extends Observable<V>> Observable<V> switchAll(Class<V> clazz) {
-        Observable<O> cast = (Observable<O>) this;
-        return cast.pipe(Operator.switchAll());
-    }
-    @JsOverlay public final <V, O extends Observable<V>> Observable<V> mergeAll(Class<V> clazz) {
-        Observable<O> cast = (Observable<O>) this;
-        return cast.pipe(Operator.mergeAll());
-    }
-    @JsOverlay public final <V, O extends Observable<V>> Observable<V> exhaustAll(Class<V> clazz) {
-        Observable<O> cast = (Observable<O>) this;
-        return cast.pipe(Operator.exhaustAll());
+    @JsOverlay public final <V, O extends Observable<V>> Observable<V> concatAll(Class<V> clazz) { return this.<V, O>flatten(Operator.<V, O>concatAll()); }
+    @JsOverlay public final <V, O extends Observable<V>> Observable<V> switchAll(Class<V> clazz) { return this.<V, O>flatten(Operator.<V, O>switchAll()); }
+    @JsOverlay public final <V, O extends Observable<V>> Observable<V> mergeAll(Class<V> clazz) { return this.<V, O>flatten(Operator.<V, O>mergeAll()); }
+    @JsOverlay public final <V, O extends Observable<V>> Observable<V> exhaustAll(Class<V> clazz) { return this.<V, O>flatten(Operator.<V, O>exhaustAll()); }
+    /** Observable&lt;Observable&lt;V&gt;&gt;를 평탄화하는 *All 연산자 공통 처리. 요소 타입을 O로 보는 캐스트를 한 곳에 모읍니다. */
+    @JsOverlay private final <V, O extends Observable<V>> Observable<V> flatten(OperatorFunction<O, V> op) {
+        return Js.<Observable<O>>uncheckedCast(this).pipe(op);
     }
     @JsOverlay public final Observable<T> takeUntil(Observable<?> notifier) { return pipe(Operator.takeUntil(notifier)); }
     @JsOverlay public final Observable<T> takeWhile(Predicate<T> predicate) { return pipe(Operator.takeWhile(predicate)); }

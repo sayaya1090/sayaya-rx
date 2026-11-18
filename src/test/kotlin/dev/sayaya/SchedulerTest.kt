@@ -3,9 +3,6 @@ package dev.sayaya
 import com.microsoft.playwright.Page
 import dev.sayaya.gwt.test.GwtHtml
 import dev.sayaya.gwt.test.GwtTestSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.string.shouldNotContain
-import java.lang.Thread.sleep
 
 @GwtHtml("scheduler.html")
 internal class SchedulerTest: GwtTestSpec({
@@ -19,44 +16,23 @@ internal class SchedulerTest: GwtTestSpec({
         val logs = page.getConsoleLogs()
 
         When("asyncScheduler를 사용할 때") {
-            val log = logs.find { line -> line.toString().startsWith("asyncScheduler()") } as String
-            Then("지정된 지연 시간 후에 실행되어야 한다") {
-                println(log)
-                log shouldNotContain "Assertion failed!"
-            }
+            Then("지정된 지연 시간 후에 실행되어야 한다") { logs.shouldPassAll("asyncScheduler()") }
         }
 
         When("asapScheduler를 사용할 때") {
-            val log = logs.find { line -> line.toString().startsWith("asapScheduler()") } as String
-            Then("가능한 빨리 비동기적으로 실행되어야 한다") {
-                println(log)
-                log shouldNotContain "Assertion failed!"
-            }
+            Then("가능한 빨리 비동기적으로 실행되어야 한다") { logs.shouldPassAll("asapScheduler()") }
         }
 
         When("queueScheduler를 사용할 때") {
-            val log = logs.find { line -> line.toString().startsWith("queueScheduler()") } as String
-            Then("대기열 순서대로 동기적으로 실행되어야 한다") {
-                println(log)
-                log shouldNotContain "Assertion failed!"
-            }
+            Then("대기열 순서대로 동기적으로 실행되어야 한다") { logs.shouldPassAll("queueScheduler()") }
         }
 
         When("여러 Scheduler를 함께 사용할 때") {
-            val log = logs.find { line -> line.toString().startsWith("All schedulers") } as String
-            Then("각 Scheduler의 특성에 맞게 실행 순서가 결정되어야 한다") {
-                println(log)
-                log shouldNotContain "Assertion failed!"
-            }
+            Then("각 Scheduler의 특성에 맞게 실행 순서가 결정되어야 한다") { logs.shouldPassAll("All schedulers") }
         }
 
         When("asyncScheduler.schedule(state)로 작업을 다시 예약할 때") {
-            val log = logs.find { line -> line.toString().startsWith("asyncScheduler.schedule(state)") }
-            Then("새 state로 작업이 다시 실행되어야 한다") {
-                log.shouldNotBeNull()
-                println(log)
-                log.toString() shouldNotContain "Assertion failed!"
-            }
+            Then("새 state로 작업이 다시 실행되어야 한다") { logs.shouldPassAll("asyncScheduler.schedule(state)") }
         }
     }
 })
