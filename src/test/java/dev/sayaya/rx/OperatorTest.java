@@ -539,8 +539,11 @@ public class OperatorTest implements EntryPoint {
           Observable.<Integer>from(Arrays.asList(4, 5)).subscribe(observer(r));
           later("from() with list should emit each element", "4,5,|", r, 0); }
         { var r = new StringBuilder();
-          timer(0, 100).takeUntil(timer(250)).subscribe(observer(r));
-          later("takeUntil() should complete when notifier emits", "0,1,2,|", r, 800); }
+          // 타이밍 경쟁 없이 순서를 직접 정한다(timer 기반은 느린 CI 러너에서 방출 순서가 뒤바뀔 수 있음).
+          Subject<Integer> src = Subject.subject(); Subject<Integer> notifier = Subject.subject();
+          src.takeUntil(notifier).subscribe(observer(r));
+          src.next(0); src.next(1); src.next(2); notifier.next(0); src.next(3);
+          later("takeUntil() should complete when notifier emits", "0,1,2,|", r, 0); }
         { var r = new StringBuilder();
           of(10, 20, 30).first().subscribe(observer(r));
           of(10, 20, 30).first(x -> x > 15).subscribe(observer(r));
