@@ -124,12 +124,15 @@ Observable.fetchJson("https://api.example.com/data", MyClass.class)
 ./gradlew gwtDevMode
 ```
 
+### 개발 문서
+Unified Process 형식의 개발 문서(비전, 요구사항, 유스케이스, 설계 모델, 아키텍처, 테스트, 릴리스 절차)는 [docs/](docs/README.md)에 있습니다.
+
 ## 기술 스택
 
 - GWT 2.13.1
 - Kotlin 2.4.21
 - RxJS (JsInterop 바인딩)
-- Elemento 2.5.10
+- Elemento 2.5.14
 
 ## 버전
 
