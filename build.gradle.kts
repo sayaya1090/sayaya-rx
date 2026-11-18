@@ -23,7 +23,7 @@ group = "dev.sayaya"
 version = "2.4.0"
 
 dependencies {
-    implementation("org.jboss.elemento:elemento-core:2.5.10")
+    implementation("org.jboss.elemento:elemento-core:2.5.14")
     testImplementation("dev.sayaya:gwt-test:2.3.0")
 }
 tasks {
