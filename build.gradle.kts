@@ -52,6 +52,14 @@ tasks {
     jar {
         from(sourceSets.main.get().allSource)
     }
+    javadoc {
+        // GWT용 의존성 jar(jsinterop base 등)는 .java 소스를 함께 담고 있다. -sourcepath가 없으면 javadoc이
+        // classpath의 그 소스까지 파싱하다가 소스 전용 의존성(errorprone 어노테이션)을 찾지 못해 실패하므로
+        // 프로젝트 소스만 소스 경로로 지정한다.
+        (options as StandardJavadocDocletOptions).addStringOption(
+            "sourcepath", sourceSets.main.get().java.srcDirs.joinToString(File.pathSeparator)
+        )
+    }
     afterEvaluate {
         named<Jar>("sourcesJar") {
             dependsOn(tasks.compileJava)
