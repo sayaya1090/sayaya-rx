@@ -10,6 +10,7 @@
 | AD-04 | 가변인자를 JS 배열로 넘겨야 하는 곳은 `Object`로 감싼다(`from(List)` → `from((Object) list.toArray())`) | 정확성: GWT는 Java 가변인자를 JS 인자 여러 개로 펼친다 | 시그니처마다 확인 필요 |
 | AD-05 | 람다 구독은 JS 함수를 그대로 넘긴다(`subscribeNext`) | 신뢰성: 에러가 사라지지 않음 (FR-08) | 네이티브 오버로드가 하나 늘어남 |
 | AD-06 | 라이브러리 jar에 소스를 포함한다(`jar { from(sourceSets.main.get().allSource) }`) | GWT 컴파일러가 Java 소스를 필요로 함 | jar 크기 증가 |
+| AD-07 | 패키지 순환 의존(`rx`↔`scheduler`, `rx`↔`function`)을 수용한다(2026-11 결정) | 호환성: 해소하려면 공개 타입(`Subscription`, `AsyncScheduler`, `OperatorFunction`)의 패키지를 옮겨야 해서 사용자 import가 깨짐. RxJS 자체의 상호 참조를 반영한 것이고 하나의 GWT 모듈로 컴파일되어 빌드·성능 피해가 없음 | 패키지를 별도 GWT 모듈로 쪼갤 수 없음. 메이저 버전에서 모듈 분리가 필요해지면 재검토 |
 
 ## 패키지 다이어그램
 
@@ -40,6 +41,8 @@ flowchart TD
 - `rx`→`function`과 `function`→`rx`(`OperatorFunction`이 `Observable`을 다룸)
 
 모두 RxJS 자체의 상호 참조를 그대로 반영한 것이고 하나의 GWT 모듈로 컴파일되므로 빌드 문제는 없습니다. 패키지를 별도 모듈로 쪼갤 때는 먼저 풀어야 합니다.
+
+호환성을 깨지 않고 풀 수 있는지 검토했지만 방법이 없었습니다. 순환을 만드는 것은 내부 구현이 아니라 공개 시그니처입니다: `Observable.throttleTime(int, AsyncScheduler<T>)`, `AsyncScheduler.schedule(...)`/`TaskScheduler.schedule(...)`의 반환 타입 `Subscription`, `OperatorFunction.call(Observable<T>)`와 `Observable.pipe(OperatorFunction)`. 그래서 순환을 **AD-07로 수용**하고, 메이저 버전에서 모듈 분리가 필요할 때 다시 검토합니다.
 
 ## 컴포넌트 다이어그램
 

@@ -228,4 +228,4 @@ classDiagram
 | `throttleTime`의 `AsyncScheduler<V>`가 요소 타입에 묶임 | `Operator.java`, `Observable.java` | `AsyncScheduler<?>`로 넓히는 것은 비파괴 |
 | 런타임에 쓰이지 않는 `Class<T>` 타입 토큰 | `Subject`, `ReplaySubject`, `AsyncSubject`, `Scheduler`, `concatAll` 등 | 제거하면 호환성을 깸 |
 | 결합 결과 타입 혼재: `zip/toArray/pairwise`는 `List`, `combineLatest/withLatestFrom/forkJoin`은 `Object[]` | `Observable.java` | 호환성을 깸 |
-| 패키지 순환 의존 `rx`↔`scheduler`, `rx`↔`function` | [아키텍처](architecture.md#패키지-다이어그램) | 같은 GWT 모듈 안이라 빌드 문제는 없음 |
+| 패키지 순환 의존 `rx`↔`scheduler`, `rx`↔`function` | [아키텍처](architecture.md#패키지-다이어그램) | 결정 AD-07로 수용(공개 시그니처가 만드는 순환이라 비파괴 해소 불가). 같은 GWT 모듈 안이라 빌드 문제는 없음 |
